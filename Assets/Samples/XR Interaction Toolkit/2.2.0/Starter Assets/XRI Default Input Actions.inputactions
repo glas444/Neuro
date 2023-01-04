@@ -209,12 +209,12 @@
             "actions": [
                 {
                     "name": "Select",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "33754c03-48ec-46ef-9bc6-22ed6bfdd8e8",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "Dpad",
                     "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
+                    "interactions": "SlowTap",
+                    "initialStateCheck": true
                 },
                 {
                     "name": "Select Value",
@@ -289,12 +289,21 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "AdjustTransparency",
+                    "name": "Ldpad",
                     "type": "Value",
                     "id": "3aed58d9-cf69-420d-aa8e-31c2791323c2",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Lclick",
+                    "type": "Value",
+                    "id": "d2146d76-e324-46a6-b942-6df624eab587",
+                    "expectedControlType": "Dpad",
+                    "processors": "",
+                    "interactions": "SlowTap",
                     "initialStateCheck": true
                 }
             ],
@@ -390,22 +399,22 @@
                 {
                     "name": "",
                     "id": "38fffa59-2ef0-4cba-87e7-8236ae9884d3",
-                    "path": "<ValveIndexController>{RightHand}/thumbstick",
+                    "path": "<ValveIndexController>{LeftHand}/thumbstick",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "AdjustTransparency",
+                    "action": "Ldpad",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
                     "id": "15e3d9ba-0b7c-4dce-9172-728c92de29cf",
-                    "path": "<ViveController>{RightHand}/trackpad",
+                    "path": "<ViveController>{LeftHand}/trackpad",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "AdjustTransparency",
+                    "action": "Ldpad",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -417,6 +426,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleTransparency",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "68556f1e-906f-4e3c-81ee-76eeee3b169b",
+                    "path": "<ViveController>{LeftHand}/trackpadClicked",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Lclick",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

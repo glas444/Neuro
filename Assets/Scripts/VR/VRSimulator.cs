@@ -25,22 +25,32 @@ public class VRSimulator : BaseSimulator
     
     [Header("LEFT VR Settings")]
     public Transform leftVRController;
+    public GameObject leftController;
     public GameObject markerSphere;
+    public Material transparentMat;
+    public Material solidMat;
+
+    public Vector3 markerDist;
+    public float markerSizeMin = 0.0001f;
+    public float markerSizeMax = 0.1f;
 
     public float LleftSens = -0.8f;
     public float LrightSens = 0.7f;
     public float LupSens = 0.6f;
     public float LdownSens = -0.6f;
-    
+    private float preLtrackpad = 0;
 
-    [SerializeField] private InputActionReference transparencyController = null;
+
+
+    [SerializeField] private InputActionReference spaceController = null;
+
     [SerializeField] private InputActionReference toggleTransparent = null;
-
+    [SerializeField] private InputActionReference LtrackClick = null;
 
 
     [Header("RIGHT VR Settings")]
     public Transform rightVRController;
-
+    private bool transparencyMarkerEnabled;
 
     public float RleftSens = -0.7f;
     public float RrightSens = 0.7f;
@@ -57,19 +67,26 @@ public class VRSimulator : BaseSimulator
     [SerializeField] private InputActionReference RtrackClick = null;
 
 
+
+
     private bool transparencyToggleInProgress = false; // Todo: Is this actualy unused/superficient?
+
+
 
     override protected void handleInput()
     {
-        // Handle VR input
+        // Handle VR input LEFT
         Vector2 timeInputVal = timeController.action.ReadValue<Vector2>();
-        Vector2 transparencyInputVal = transparencyController.action.ReadValue<Vector2>();
-        float toggleVal = toggleTransparent.action.ReadValue<float>();
+
         float playPauseBool = togglePlay.action.ReadValue<float>();
         float Rtrackpad = RtrackClick.action.ReadValue<float>();
 
-        
+        // Handle VR input RIGHT
+        Vector2 spaceInputVal = spaceController.action.ReadValue<Vector2>();
+        float toggleVal = toggleTransparent.action.ReadValue<float>();
+        float Ltrackpad = LtrackClick.action.ReadValue<float>();
 
+        //Debug.Log(Ltrackpad);
         if (playPauseBool==1 && prePlayPauseBool==0)
         {
             if (paused == true)
@@ -153,10 +170,7 @@ public class VRSimulator : BaseSimulator
                 forward = true;
             }
         }
-
-
-
-        //////////////////////////////////////////////////////////////
+ 
 
 
 
@@ -173,7 +187,7 @@ public class VRSimulator : BaseSimulator
 
             if (timeInputVal.x > RrightSens && Time.time > currTime + 0.1 && index < maxFileSize - 10) // If there is input to reduce the playback speed
             {
-                Debug.Log("INNIT");
+                //Debug.Log("INNIT");
                 foreach (Data data in dataList)
                 {
 
@@ -207,6 +221,64 @@ public class VRSimulator : BaseSimulator
         }
         preRtrackpad = Rtrackpad;
 
+
+        if (markerSphere.activeSelf == false)
+        {
+
+            markerSphere.SetActive(true);
+            markerSphere.transform.position = leftController.transform.position + leftController.transform.rotation * new Vector3(0, 0, 0.05f);
+            transparencyMarkerEnabled = false;
+            ToggleMarkerTransparency();
+        }
+        if (transparencyMarkerEnabled)
+        {
+            
+            markerSphere.transform.position = leftController.transform.position + leftController.transform.rotation * markerDist;
+        }
+        //Debug.Log(spaceInputVal);
+        if (spaceInputVal != Vector2.zero && preLtrackpad == 0 && Ltrackpad == 1) // If there is input controlling the playback
+        {
+            //Debug.Log("1111111111111");
+            if (spaceInputVal.y > LupSens)
+            {
+                //Debug.Log("222222222");
+
+                ToggleMarkerTransparency();
+            }
+        }
+
+
+
+        if (spaceInputVal != Vector2.zero && preLtrackpad == 0 && Ltrackpad == 1) // If there is input controlling the playback
+        {
+
+
+            if (spaceInputVal.x > LrightSens)
+            {
+                
+                markerSphere.transform.localScale += 0.001f * new Vector3(1, 1, 1);
+                
+            }
+            else if (spaceInputVal.x < LleftSens)
+            {
+                markerSphere.transform.localScale -= 0.001f * new Vector3(1, 1, 1);
+            }
+
+            if (markerSphere.transform.localScale.x < 0.001)
+            {
+
+                markerSphere.transform.localScale = new Vector3(0.001f, 0.001f, 0.001f);
+            }
+            else if (markerSphere.transform.localScale.x > markerSizeMax)
+            {
+                markerSphere.transform.localScale = new Vector3(markerSizeMax, markerSizeMax, markerSizeMax);
+            }
+
+
+
+        }
+
+        preLtrackpad = Ltrackpad;
 
 
 
@@ -356,4 +428,38 @@ public class VRSimulator : BaseSimulator
         }
         */
     }
+
+    void ToggleMarkerTransparency()
+    {
+        Renderer markerRendererR = markerSphere.GetComponent<Renderer>();
+        if (!transparencyMarkerEnabled)
+        {
+            //markerDist = this.transform.position - marker.transform.position;
+            //marker.transform.position = this.transform.position + transform.rotation * markerDist;
+            markerDist = leftController.transform.position - markerSphere.transform.position;
+            markerDist = new Vector3(0, 0, markerDist.magnitude);
+            markerTransparent();
+            transparencyMarkerEnabled = true;
+        }
+        else if (transparencyMarkerEnabled)
+        {
+            markerSolid();
+            transparencyMarkerEnabled = false;
+
+        }
+    }
+
+
+    void markerTransparent()
+    {
+        Renderer skullRendererE = markerSphere.GetComponent<Renderer>();
+        skullRendererE.material = transparentMat;
+    }
+    void markerSolid()
+    {
+        Renderer skullRendererE = markerSphere.GetComponent<Renderer>();
+        skullRendererE.material = solidMat;
+    }
+
+
 }
