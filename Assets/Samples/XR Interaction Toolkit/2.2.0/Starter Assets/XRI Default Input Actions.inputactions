@@ -305,6 +305,15 @@
                     "processors": "",
                     "interactions": "SlowTap",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Ltrigger",
+                    "type": "Value",
+                    "id": "54b5eb51-b359-4e0f-9ba4-d8358b0b30fa",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -437,6 +446,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Lclick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "18c95f21-56b5-48de-9d2b-b87d810f11ed",
+                    "path": "<ViveController>{LeftHand}/trigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Ltrigger",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -857,6 +877,15 @@
                     "processors": "",
                     "interactions": "SlowTap",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Rtrigger",
+                    "type": "Value",
+                    "id": "4da94b26-6539-4442-8c91-c33cffb7c935",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -978,6 +1007,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "StepForward",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4957e1e2-bc55-49d2-9217-d51e19940e46",
+                    "path": "<XRInputV1::HTC::HTCViveControllerOpenXR>{RightHand}/trigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rtrigger",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

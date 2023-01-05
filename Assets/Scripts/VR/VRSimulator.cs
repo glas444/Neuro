@@ -21,12 +21,13 @@ using UnityEngine.SceneManagement;
 public class VRSimulator : BaseSimulator
 {
     private float densityVisSpeed = 0.2f;
+    public GameObject markerSphere;
 
-    
     [Header("LEFT VR Settings")]
     public Transform leftVRController;
     public GameObject leftController;
-    public GameObject markerSphere;
+
+    public GameObject scaleSphere;
     public Material transparentMat;
     public Material solidMat;
 
@@ -40,16 +41,18 @@ public class VRSimulator : BaseSimulator
     public float LdownSens = -0.6f;
     private float preLtrackpad = 0;
 
-
+    public Vector3 scaleCubeDist;
 
     [SerializeField] private InputActionReference spaceController = null;
 
     [SerializeField] private InputActionReference toggleTransparent = null;
     [SerializeField] private InputActionReference LtrackClick = null;
+    [SerializeField] private InputActionReference LtriggerZ = null;
 
 
     [Header("RIGHT VR Settings")]
     public Transform rightVRController;
+    public GameObject rightController;
     private bool transparencyMarkerEnabled;
 
     public float RleftSens = -0.7f;
@@ -65,12 +68,36 @@ public class VRSimulator : BaseSimulator
     [SerializeField] private InputActionReference timeController = null;
     [SerializeField] private InputActionReference annotatePoint = null;
     [SerializeField] private InputActionReference RtrackClick = null;
+    [SerializeField] private InputActionReference RtriggerZ = null;
 
-
+    public float RtriggerVal;
+    public float LtriggerVal;
 
 
     private bool transparencyToggleInProgress = false; // Todo: Is this actualy unused/superficient?
 
+    private float triggerSens = 0.7f;
+    private bool leftHit = false;
+    private bool rightHit = false;
+    public GameObject rightHTC;
+    public GameObject leftHTC;
+    private bool RjustGrabbed;
+    private bool LjustGrabbed;
+    private Vector3 scaleCubeRotation;
+
+
+
+
+    public void setLeftHit()
+    {
+        leftHit = !leftHit;
+
+    }
+    public void setRightHit()
+    {
+        rightHit = !rightHit;
+
+    }
 
 
     override protected void handleInput()
@@ -80,11 +107,66 @@ public class VRSimulator : BaseSimulator
 
         float playPauseBool = togglePlay.action.ReadValue<float>();
         float Rtrackpad = RtrackClick.action.ReadValue<float>();
+        RtriggerVal = RtriggerZ.action.ReadValue<float>();
 
         // Handle VR input RIGHT
         Vector2 spaceInputVal = spaceController.action.ReadValue<Vector2>();
         float toggleVal = toggleTransparent.action.ReadValue<float>();
         float Ltrackpad = LtrackClick.action.ReadValue<float>();
+        LtriggerVal = LtriggerZ.action.ReadValue<float>();
+
+        //Debug.Log("VRindex=  "+ index);
+
+        if (rightHit == true && RtriggerVal >= triggerSens && LtriggerVal < triggerSens)
+        {
+            //Debug.Log("Right Grab");
+            //Debug.Log("RIGHT");
+            Renderer rightCtrl = rightHTC.GetComponent<MeshRenderer>();
+            
+            if (RjustGrabbed)
+            {
+                scaleCubeDist = scaleSphere.transform.position - rightController.transform.position;
+                scaleCubeRotation = scaleSphere.transform.eulerAngles - rightController.transform.eulerAngles;
+
+                Debug.Log(Time.time);
+            }
+            RjustGrabbed = false;
+            scaleSphere.transform.eulerAngles = scaleSphere.transform.eulerAngles + scaleCubeRotation;
+            scaleSphere.transform.position = rightController.transform.position + scaleCubeDist;
+            rightCtrl.enabled = false;
+        }
+        else
+        {
+            Renderer rightCtrl = rightHTC.GetComponent<MeshRenderer>();
+            rightCtrl.enabled = true;
+            RjustGrabbed = true;
+
+        }
+
+        if (leftHit == true && LtriggerVal >= triggerSens && RtriggerVal < triggerSens)
+        {
+            //Debug.Log("Right Grab");
+            //Debug.Log("RIGHT");
+            Renderer leftCtrl = leftHTC.GetComponent<MeshRenderer>();
+            
+            if (LjustGrabbed)
+            {
+                scaleCubeDist = scaleSphere.transform.position - leftController.transform.position;
+                Debug.Log(Time.time);
+            }
+            LjustGrabbed = false;
+
+            scaleSphere.transform.position = leftController.transform.position + scaleCubeDist;
+            leftCtrl.enabled = false;
+        }
+        else
+        {
+            Renderer leftCtrl = rightHTC.GetComponent<MeshRenderer>();
+            leftCtrl.enabled = true;
+            LjustGrabbed = true;
+
+        }
+
 
         //Debug.Log(Ltrackpad);
         if (playPauseBool==1 && prePlayPauseBool==0)
@@ -106,7 +188,7 @@ public class VRSimulator : BaseSimulator
 
             ToggleTransparency();
         }
-
+         
         if (toggleVal > 0.8f && !transparencyToggleInProgress) //If we got input to toggle transparency
         {
             //Debug.Log(toggleVal);
@@ -176,7 +258,7 @@ public class VRSimulator : BaseSimulator
 
         if (timeInputVal != Vector2.zero && Rtrackpad == 1 && preRtrackpad == 0)
         {
-            float currTime = Time.time;
+            currTime = Time.time;
         }
 
         if (timeInputVal != Vector2.zero && Rtrackpad == 1) // If there is input controlling the playback
@@ -249,25 +331,25 @@ public class VRSimulator : BaseSimulator
 
 
 
-        if (spaceInputVal != Vector2.zero && preLtrackpad == 0 && Ltrackpad == 1) // If there is input controlling the playback
+        if (spaceInputVal != Vector2.zero && Ltrackpad == 1) // If there is input controlling the playback //&& preLtrackpad == 0
         {
 
 
             if (spaceInputVal.x > LrightSens)
             {
                 
-                markerSphere.transform.localScale += 0.001f * new Vector3(1, 1, 1);
+                markerSphere.transform.localScale += 0.0005f * new Vector3(1, 1, 1);
                 
             }
             else if (spaceInputVal.x < LleftSens)
             {
-                markerSphere.transform.localScale -= 0.001f * new Vector3(1, 1, 1);
+                markerSphere.transform.localScale -= 0.0005f * new Vector3(1, 1, 1);
             }
 
-            if (markerSphere.transform.localScale.x < 0.001)
+            if (markerSphere.transform.localScale.x < 0.002f)
             {
 
-                markerSphere.transform.localScale = new Vector3(0.001f, 0.001f, 0.001f);
+                markerSphere.transform.localScale = new Vector3(0.002f, 0.002f, 0.002f);
             }
             else if (markerSphere.transform.localScale.x > markerSizeMax)
             {

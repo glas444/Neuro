@@ -214,6 +214,9 @@ public class BaseSimulator : MonoBehaviour
         }
         moreData = true;
 
+
+        
+
         init();
 
         // Sets the skull and brain to have the solid material
@@ -234,6 +237,14 @@ public class BaseSimulator : MonoBehaviour
 
     protected void Update()
     {
+
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            Debug.Log("Quit");
+            UnityEditor.EditorApplication.isPlaying = false;
+        }
+
+
         handleInput();
 
         // The slider visible in the scene displays current playback speed
