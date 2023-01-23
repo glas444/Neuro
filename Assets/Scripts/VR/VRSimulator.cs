@@ -85,7 +85,13 @@ public class VRSimulator : BaseSimulator
     private bool LjustGrabbed;
     private Vector3 scaleCubeRotation;
 
-
+    Vector3 initialHandPosition1; // first hand position
+    Vector3 initialHandPosition2; // second hand position
+    Quaternion initialObjectRotation; // grabbed object rotation
+    Vector3 initialObjectScale; // grabbed object scale
+    Vector3 initialObjectDirection; // direction of object to midpoint of both hands
+    Vector3 initialObjectDirectionRight;
+    public bool twoHandGrab = false; // bool, so you know when grabbed with 2 hands
 
 
     public void setLeftHit()
@@ -117,10 +123,108 @@ public class VRSimulator : BaseSimulator
 
         //Debug.Log("VRindex=  "+ index);
 
+        if (rightHit == true && RtriggerVal >= triggerSens)
+        {
+
+            Renderer rightCtrl = rightHTC.GetComponent<MeshRenderer>();
+
+            if (RjustGrabbed)
+            {
+                initialHandPosition1 = rightController.transform.position;
+                initialHandPosition2 = leftController.transform.position;
+                initialObjectRotation = scaleSphere.transform.rotation;
+                initialObjectScale =  scaleSphere.transform.localScale;
+                initialObjectDirection = scaleSphere.transform.position - (initialHandPosition1 + initialHandPosition2) * 0.5f;
+                initialObjectDirectionRight = scaleSphere.transform.position - initialHandPosition1;
+
+                //scaleCubeDist = scaleSphere.transform.position - rightController.transform.position;
+                //scaleCubeRotation = scaleSphere.transform.eulerAngles - rightController.transform.eulerAngles;
+            }
+
+            RjustGrabbed = false;
+
+
+
+            Vector3 currentHandPosition1 = rightController.transform.position; // current first hand position
+            Vector3 currentHandPosition2 = leftController.transform.position; // current second hand position
+
+            Vector3 handDir1 = (initialHandPosition1 - initialHandPosition2).normalized; // direction vector of initial first and second hand position
+            Vector3 handDir2 = (currentHandPosition1 - currentHandPosition2).normalized; // direction vector of current first and second hand position 
+
+            Quaternion handRot = Quaternion.FromToRotation(handDir1, handDir2); // calculate rotation based on those two direction vectors
+
+
+            float currentGrabDistance = Vector3.Distance(currentHandPosition1, currentHandPosition2);
+            float initialGrabDistance = Vector3.Distance(initialHandPosition1, initialHandPosition2);
+            float p = (currentGrabDistance / initialGrabDistance); // percentage based on the distance of the initial positions and the new positions
+
+
+            if (rightHit == true && RtriggerVal >= triggerSens && leftHit == true && LtriggerVal >= triggerSens)
+            {
+                Vector3 newScale = new Vector3(p * initialObjectScale.x, p * initialObjectScale.y, p * initialObjectScale.z); // calculate new object scale with p
+                scaleSphere.transform.localScale = newScale; // set new scale
+                scaleSphere.transform.rotation = handRot * initialObjectRotation; // add rotation
+                scaleSphere.transform.position = (0.5f * (currentHandPosition1 + currentHandPosition2)) + (handRot * (initialObjectDirection * p));
+            }
+            else
+            {
+                scaleSphere.transform.position = rightController.transform.position + initialObjectDirectionRight;
+                Quaternion rotDiff = Quaternion.Inverse(scaleSphere.transform.rotation) * rightController.transform.rotation;
+                scaleSphere.transform.rotation = scaleSphere.transform.rotation * rotDiff;
+                //scaleSphere.transform.rotation = rightController.transform.rotation * initialObjectRotation; // add rotation
+                //scaleSphere.transform.position = currentHandPosition1 + (rightController.transform.rotation * (initialObjectDirectionRight));
+            }
+
+
+
+            // set the position of the object to the center of both hands based on the original object direction relative to the new scale and rotation
+
+
+
+
+
+            //scaleSphere.transform.eulerAngles = scaleSphere.transform.eulerAngles + scaleCubeRotation;
+            //scaleSphere.transform.position = rightController.transform.position + scaleCubeDist;
+            rightCtrl.enabled = false;
+        }
+        else
+        {
+            Renderer rightCtrl = rightHTC.GetComponent<MeshRenderer>();
+            rightCtrl.enabled = true;
+            RjustGrabbed = true;
+
+        }
+
+        if(leftHit == true && LtriggerVal >= triggerSens )
+        {
+            //Debug.Log("Right Grab");
+            //Debug.Log("RIGHT");
+            Renderer leftCtrl = leftHTC.GetComponent<MeshRenderer>();
+
+            if (LjustGrabbed)
+            {
+                //scaleCubeDist = scaleSphere.transform.position - leftController.transform.position;
+                //Debug.Log(Time.time);
+            }
+            LjustGrabbed = false;
+
+            //scaleSphere.transform.position = leftController.transform.position + scaleCubeDist;
+            leftCtrl.enabled = false;
+        }
+        else
+        {
+            Renderer leftCtrl = rightHTC.GetComponent<MeshRenderer>();
+            leftCtrl.enabled = true;
+            LjustGrabbed = true;
+
+        }
+
+        /*
         if (rightHit == true && RtriggerVal >= triggerSens && LtriggerVal < triggerSens)
         {
             //Debug.Log("Right Grab");
             //Debug.Log("RIGHT");
+            
             Renderer rightCtrl = rightHTC.GetComponent<MeshRenderer>();
             
             if (RjustGrabbed)
@@ -143,29 +247,8 @@ public class VRSimulator : BaseSimulator
 
         }
 
-        if (leftHit == true && LtriggerVal >= triggerSens && RtriggerVal < triggerSens)
-        {
-            //Debug.Log("Right Grab");
-            //Debug.Log("RIGHT");
-            Renderer leftCtrl = leftHTC.GetComponent<MeshRenderer>();
-            
-            if (LjustGrabbed)
-            {
-                scaleCubeDist = scaleSphere.transform.position - leftController.transform.position;
-                Debug.Log(Time.time);
-            }
-            LjustGrabbed = false;
-
-            scaleSphere.transform.position = leftController.transform.position + scaleCubeDist;
-            leftCtrl.enabled = false;
-        }
-        else
-        {
-            Renderer leftCtrl = rightHTC.GetComponent<MeshRenderer>();
-            leftCtrl.enabled = true;
-            LjustGrabbed = true;
-
-        }
+        i
+        */
 
 
         //Debug.Log(Ltrackpad);
