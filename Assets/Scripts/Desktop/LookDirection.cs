@@ -91,7 +91,7 @@ public class LookDirection : MonoBehaviour
 
         if (leftRot) { 
         //LEFTMOUSEBUTTON
-            if (Input.GetMouseButton(0) && marker.activeSelf == true)
+            if (Input.GetMouseButton(0))// && marker.activeSelf == true)
             {
            
                 Cursor.lockState = CursorLockMode.Locked;
@@ -162,16 +162,17 @@ public class LookDirection : MonoBehaviour
 
         if (scrolltoggle)
         {
-            markerDist.z += Input.mouseScrollDelta.y * 0.005f;
-            if (markerDist.z < 0.005)
-            {
-                markerDist.z = 0.005f;
-            }
+            markerDist.z += Input.mouseScrollDelta.y * 0.001f;
+            //if (markerDist.z < 0.005)
+            //{
+            //markerDist.z = 0.005f;
+            //}
 
         }
         else
         {
             marker.transform.localScale += Input.mouseScrollDelta.y * 0.002f * new Vector3(1, 1, 1);
+
             
             if (marker.transform.localScale.x < markerSizeMin)
             {

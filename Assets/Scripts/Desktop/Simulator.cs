@@ -27,7 +27,7 @@ public class Simulator : BaseSimulator
     {
         Debug.Log("PC index= " + index);
         // Toggle transparency on and off with the Q key
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKeyDown(KeyCode.Tab))
         {
             ToggleTransparency();
         }

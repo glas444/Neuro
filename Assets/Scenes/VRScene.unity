@@ -445,6 +445,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 989126196537816095, guid: 551f172851f1cec4698e43d1925236f6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.121
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 551f172851f1cec4698e43d1925236f6, type: 3}
 --- !u!4 &99851664 stripped
@@ -509,12 +513,20 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 178937237134677788, guid: 1dde3dd1ad077b340b7dd46d88b8455a, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 178937237134677788, guid: 1dde3dd1ad077b340b7dd46d88b8455a, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: -7394202989295985249, guid: e04148f0030a8914588e6461b756aa78, type: 3}
+      objectReference: {fileID: 2100000, guid: c5503933004887847bff8edcbdd25517, type: 2}
     - target: {fileID: 919132149155446097, guid: 1dde3dd1ad077b340b7dd46d88b8455a, type: 3}
       propertyPath: m_Name
       value: vr_controller_vive_1_5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8238886003363813796, guid: 1dde3dd1ad077b340b7dd46d88b8455a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1dde3dd1ad077b340b7dd46d88b8455a, type: 3}
@@ -1885,7 +1897,7 @@ PrefabInstance:
     - target: {fileID: 178937237134677788, guid: 1dde3dd1ad077b340b7dd46d88b8455a, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: -7394202989295985249, guid: e04148f0030a8914588e6461b756aa78, type: 3}
+      objectReference: {fileID: 2100000, guid: 5b47c1f4e1ec2fd48bb32b6153fb27d7, type: 2}
     - target: {fileID: 919132149155446097, guid: 1dde3dd1ad077b340b7dd46d88b8455a, type: 3}
       propertyPath: m_Name
       value: vr_controller_vive_1_5

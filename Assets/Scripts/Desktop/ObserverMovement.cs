@@ -39,6 +39,15 @@ public class ObserverMovement : MonoBehaviour
         {
             observerPosition += orientation.right * moveSpeed / 50;
         }
+        if (Input.GetKey(KeyCode.Q))
+        {
+            observerPosition.y += moveSpeed / 50;
+        }
+        if (Input.GetKey(KeyCode.E))
+        {
+            observerPosition.y -= moveSpeed / 50;
+        }
+
 
         this.transform.position = observerPosition;
     }
