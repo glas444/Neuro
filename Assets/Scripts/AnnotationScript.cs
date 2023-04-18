@@ -41,10 +41,10 @@ public class AnnotationScript : MonoBehaviour
     private Simulator deskTopSim = null;
     private VRSimulator vrSim = null;
 
-    public GameObject AnnotationPoint1;
-    public GameObject AnnotationPoint2;
 
     private MeshCollider BrainCollider;
+
+    public GameObject marker;
 
     // Start is called before the first frame update
     void Start()
@@ -85,18 +85,12 @@ public class AnnotationScript : MonoBehaviour
 
             if (Physics.Raycast(LineOrigin.position, LineOrigin.forward, out hit))
             {
-                annotationPoint = hit.point;
+                //annotationPoint = hit.point;
 
                 desktopLineRenderer.SetPosition(0, LineOrigin.position);
-                desktopLineRenderer.SetPosition(desktopLineRenderer.positionCount - 1, hit.point);
-                if (annotationIndex.Equals(0))
-                {
-                    AnnotationPoint1.transform.position = hit.point;
-                }
-                if (annotationIndex.Equals(1))
-                {
-                    AnnotationPoint2.transform.position = hit.point;
-                }
+                desktopLineRenderer.SetPosition(desktopLineRenderer.positionCount - 1, marker.transform.position);
+                //desktopLineRenderer.SetPosition(desktopLineRenderer.positionCount - 1, hit.point);
+
             }
 
         }

@@ -49,6 +49,6 @@ public class ObserverMovement : MonoBehaviour
         }
 
 
-        this.transform.position = observerPosition;
+        //this.transform.position = observerPosition;
     }
 }

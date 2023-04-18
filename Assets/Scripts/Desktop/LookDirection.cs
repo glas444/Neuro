@@ -23,11 +23,6 @@ public class LookDirection : MonoBehaviour
     float xRot;
     float yRot;
 
-    public float xSensfix;
-    public float ySensfix;
-    float xRotfix;
-    float yRotfix;
-
     private Quaternion targetRot;
     private Quaternion currentRot;
     private Vector3 dirToMark;
@@ -44,8 +39,13 @@ public class LookDirection : MonoBehaviour
 
 
     public Transform lookDir;
-    public Transform orientation;
-  
+    public Vector3 predir;
+    public Vector3 observerPosition;
+
+    public float moveSpeed;
+
+    public float angleMax = 40.0f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -56,13 +56,54 @@ public class LookDirection : MonoBehaviour
         ToggleTransparency();
         //Cursor.lockState = CursorLockMode.Locked;
         //Cursor.visible = false;
+        observerPosition = lookDir.transform.position;
     }
+
+
 
     // Update is called once per frame
     void Update()
     {
+
+        if(Input.GetMouseButton(0) == false)
+        {
+            if (Input.GetKey(KeyCode.W))
+            {
+                observerPosition += lookDir.forward * moveSpeed / 50;
+            }
+            if (Input.GetKey(KeyCode.S))
+            {
+                observerPosition -= lookDir.forward * moveSpeed / 50;
+            }
+            if (Input.GetKey(KeyCode.A))
+            {
+                observerPosition -= lookDir.right * moveSpeed / 50;
+            }
+            if (Input.GetKey(KeyCode.D))
+            {
+                observerPosition += lookDir.right * moveSpeed / 50;
+            }
+            if (Input.GetKey(KeyCode.Q))
+            {
+                observerPosition.y += moveSpeed / 50;
+            }
+            if (Input.GetKey(KeyCode.E))
+            {
+                observerPosition.y -= moveSpeed / 50;
+            }
+        }
+
+
+        lookDir.transform.position = observerPosition;
+
+        if (Input.GetMouseButtonDown(1) & Input.GetMouseButton(0) == false)
+        {
+
+            //lookDir.rotation = this.transform.rotation;
+            //lookDir.position = this.transform.position;
+        }
         //RIGHTMOUSEBUTTON
-        if (Input.GetMouseButton(1))
+        if (Input.GetMouseButton(1) & Input.GetMouseButton(0) == false)
         {
             
             Cursor.lockState = CursorLockMode.Locked;
@@ -80,61 +121,62 @@ public class LookDirection : MonoBehaviour
 
             // rotate cam
             lookDir.rotation = Quaternion.Euler(xRot, yRot, 0);
+
         }
-        else if (Input.GetMouseButtonUp(1))
+        else if (Input.GetMouseButtonUp(1) & Input.GetMouseButton(0) == false)
         {
-            
+            //Debug.Log(xRot);
             Cursor.visible = true;
             //Cursor.lockState = CursorLockMode.Confined;
             Cursor.lockState = CursorLockMode.None;
         }
 
-        if (leftRot) { 
+        
+        if (Input.GetMouseButtonDown(0) & transparencyEnabled == false & Input.GetMouseButton(1) == false)
+        {
+            markerDist = this.transform.position - marker.transform.position;
+            lookDir.transform.LookAt(marker.transform.position);
+        }
+
         //LEFTMOUSEBUTTON
-            if (Input.GetMouseButton(0))// && marker.activeSelf == true)
-            {
-           
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-                // mouse input
-                float mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * xSens;
-                float mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * ySens;
-
-                xRot -= mouseY;
-                yRot += mouseX;
-
-                //Debug.Log(xRotfix);
+        if (Input.GetMouseButton(0) & transparencyEnabled == false & Input.GetMouseButton(1) == false)// && marker.activeSelf == true)
+        {
             
-                Vector3 tempV = new Vector3(xRot, yRot, 0);
-                targetRot = Quaternion.Euler(tempV); //We are setting the rotation around X, Y, Z axis respectively
-
-                //Rotate Camera
-                currentRot = Quaternion.Slerp(currentRot, targetRot, Time.smoothDeltaTime * slerpSmoothValue * 50);  //let cameraRot value gradually reach newQ which corresponds to our touch
-                if (startrot)
-                {
-                    Debug.Log("Ea");
-                    deltacam = Vector3.Distance(marker.transform.position, transform.position);
-                    dirToMark = new Vector3(0, 0, -deltacam);
-                    startrot = false;
-                    currentRot = transform.rotation;
-                }                                                                                                        //Multiplying a quaternion by a Vector3 is essentially to apply the rotation to the Vector3
-                                                                                                                         //This case it's like rotate a stick the length of the distance between the camera and the target and then look at the target to rotate the camera.
-                transform.position = marker.transform.position + currentRot * dirToMark;
-                transform.LookAt(marker.transform.position);
-                this.GetComponent<ObserverMovement>().observerPosition = transform.position;
-        }
-            else if (Input.GetMouseButtonUp(0))
-            {
-
+                
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            lookDir.transform.position = marker.transform.position - (lookDir.transform.forward * markerDist.magnitude);
+            lookDir.transform.RotateAround(marker.transform.position, Vector3.up, Input.GetAxis("Mouse X"));
+            lookDir.transform.RotateAround(marker.transform.position, -lookDir.transform.right, Input.GetAxis("Mouse Y"));
             
-                startrot = true;
+            
+            /*
+            float rotateDegrees = Input.GetAxis("Mouse Y");
+            Vector3 currentVector = lookDir.position - marker.transform.position;
+            currentVector.y = 0;
+            float angleBetween = Vector3.Angle(markerDist, currentVector) * (Vector3.Cross(markerDist, currentVector).y > 0 ? 1 : -1);
+            float newAngle = Mathf.Clamp(angleBetween + rotateDegrees, -angleMax, angleMax);
+            rotateDegrees = newAngle - angleBetween;
+            lookDir.transform.RotateAround(marker.transform.position, -lookDir.transform.right, rotateDegrees);
+            */
 
-                Cursor.visible = true;
-                //Cursor.lockState = CursorLockMode.Confined;
-                Cursor.lockState = CursorLockMode.None;
-            }
+
+            observerPosition = lookDir.transform.position;
+
+
         }
+        else if (Input.GetMouseButtonUp(0) & transparencyEnabled == false & Input.GetMouseButton(1) == false)
+        {
 
+            xRot = lookDir.eulerAngles.x;
+            yRot = lookDir.eulerAngles.y;
+            //observerPosition = lookDir.transform.position;
+            startrot = true;
+            Cursor.visible = true;
+            //Cursor.lockState = CursorLockMode.Confined;
+            Cursor.lockState = CursorLockMode.None;
+            //Debug.Log(xRot);
+        }
 
 
         if (Input.GetMouseButtonDown(2))
@@ -206,7 +248,8 @@ public class LookDirection : MonoBehaviour
             //markerDist = this.transform.position - marker.transform.position;
             //marker.transform.position = this.transform.position + transform.rotation * markerDist;
             markerDist = this.transform.position - marker.transform.position;
-            markerDist = new Vector3(-0.03f, -0.01f, markerDist.magnitude);
+            //markerDist = new Vector3(-0.03f, -0.01f, markerDist.magnitude);
+            markerDist = new Vector3(0, 0, markerDist.magnitude);
             markerTransparent();
             transparencyEnabled = true;
         }
