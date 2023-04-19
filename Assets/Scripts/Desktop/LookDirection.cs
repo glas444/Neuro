@@ -28,7 +28,7 @@ public class LookDirection : MonoBehaviour
     private Vector3 dirToMark;
     private float deltacam;
     public float slerpSmoothValue = 0.3f;
-    private bool startrot;
+    //private bool startrot;
 
     public Vector3 markerDist = new Vector3(0, 0, 0.5f);
     private bool scrolltoggle;
@@ -51,7 +51,7 @@ public class LookDirection : MonoBehaviour
     {
         
         scrolltoggle = true;
-        startrot = true;
+        //startrot = true;
         marker.transform.position = this.transform.position + transform.rotation * markerDist;
         ToggleTransparency();
         //Cursor.lockState = CursorLockMode.Locked;
@@ -171,7 +171,7 @@ public class LookDirection : MonoBehaviour
             xRot = lookDir.eulerAngles.x;
             yRot = lookDir.eulerAngles.y;
             //observerPosition = lookDir.transform.position;
-            startrot = true;
+            //startrot = true;
             Cursor.visible = true;
             //Cursor.lockState = CursorLockMode.Confined;
             Cursor.lockState = CursorLockMode.None;
@@ -229,8 +229,31 @@ public class LookDirection : MonoBehaviour
             
         }
 
-        
 
+        //-------------------------------------------------
+        /*
+        private void PlayAudioClip(AudioSource source, AudioClip clip)
+        {
+            source.clip = clip;
+            source.Play();
+        }
+        
+		//-------------------------------------------------
+		private void PlayPointerHaptic( bool validLocation )
+		{
+			if ( pointerHand != null )
+			{
+				if ( validLocation )
+				{
+					pointerHand.TriggerHapticPulse( 800 );
+				}
+				else
+				{
+					pointerHand.TriggerHapticPulse( 100 );
+				}
+			}
+		}
+        */
 
 
 
