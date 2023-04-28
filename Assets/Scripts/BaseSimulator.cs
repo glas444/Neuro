@@ -206,7 +206,7 @@ public class BaseSimulator : MonoBehaviour
             dataList.Add(extractData(path));
         }
         maxFileSize = warpData(dataList);
-        slider.maxValue = maxFileSize;
+        slider.maxValue = maxFileSize-1;
         findMinMax(dataList);
         foreach (Data data in dataList)
         {
@@ -247,21 +247,24 @@ public class BaseSimulator : MonoBehaviour
 
         handleInput();
 
+
         // The slider visible in the scene displays current playback speed
 
         if (slider && !sliderSelecte)
         {
             slider.value = index;
+            
         }
         else
         {
+            Debug.Log(slider.value);
             index = Mathf.RoundToInt(slider.value);
             
         }
         // Update the GUI
         if (FrameStuff[0])
         {
-            FrameStuff[0].text = "Frame: " + index + " / " + maxFileSize;
+            FrameStuff[0].text = "Frame: " + index; // + " / " + maxFileSize;
         }
 
         if (sliderSelecte)
@@ -269,8 +272,10 @@ public class BaseSimulator : MonoBehaviour
             foreach (Data data in dataList)
             {
                 simulateData(data);
+                visualizePathTrace(data);
             }
         }
+
 
 
     }
@@ -278,13 +283,13 @@ public class BaseSimulator : MonoBehaviour
     {
 
         paused = true;
-        Debug.Log("EA");
+        Debug.Log("Selected");
         sliderSelecte = true;
     }
 
     public void SliderDeselect()
     {
-        Debug.Log("Unity");
+        Debug.Log("Deselected");
         sliderSelecte = false;
     }
 
@@ -582,26 +587,29 @@ public class BaseSimulator : MonoBehaviour
             }
 
 
-
+            /*
             if (rewind && index > 0)
             {
                 index--;
-            }
+            }*/
 
+            /*
             if (forward)
             {
                 index++;
-            }
+            }*/
 
 
             // Update the GUI
+            /*
             if (FrameStuff[0])
             {
             FrameStuff[0].text = "Frame: " + index +" / " + maxFileSize;
             }
+            */
             //Debug.Log("index" + index);
 
-            if (index >= maxFileSize)
+            if (index >= maxFileSize-1)
             {
                 moreData = false;
                 Invoke(nameof(RestartScene), 1f); // Soft restart the scene (method in this script)
@@ -658,6 +666,7 @@ public class BaseSimulator : MonoBehaviour
                     data.skullCenter = child;
                     //initialize offset for 3dmodels
                     data.skullCenterRot = data.skullCenter.transform.rotation;
+                    
 
                     int nc = child.transform.childCount;
                     for (int j = 0; j < nc; j++)

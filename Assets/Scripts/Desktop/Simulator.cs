@@ -18,13 +18,22 @@ using JetBrains.Annotations;
 
 public class Simulator : BaseSimulator
 {
-    private float currTime;
+    private float currTime1;
+    private float currTimeSpeedUp;
+    private float fastforwardspeed = 0.04f;
+    private bool firstspeed = false;
     private float densityVisSpeed = 0.2f;
 
 
 
     override protected void handleInput()
     {
+
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+
+        }
+
         //Debug.Log("PC index= " + index);
         // Toggle transparency on and off with the Q key
         if (Input.GetKeyDown(KeyCode.Tab))
@@ -48,67 +57,111 @@ public class Simulator : BaseSimulator
             playPause();
 
         }
-        /*
-        // Right arrow key plays the animation forward in time
-        if (Input.GetKeyDown(KeyCode.RightArrow) && !applySpaceTimeDensity)
-        {
-            index += 5;
-            FrameStuff[0].text = "Frame: " + index + " / " + maxFileSize;
-        }
-        // Left arrow key rewinds the animation
-        else if (Input.GetKeyDown(KeyCode.LeftArrow) && !applySpaceTimeDensity)
-        {
-            index -= 5;
-            FrameStuff[0].text = "Frame: " + index + " / " + maxFileSize;
-        }
-        */
+
 
         // Right arrow key plays the animation forward in time
         if (Input.GetKeyDown(KeyCode.RightArrow) && !applySpaceTimeDensity)
         {
-            float currTime = Time.time;
+            currTime1 = Time.time;
+            firstspeed = false;
 
-        }
-        if (Input.GetKey(KeyCode.RightArrow) && Time.time > currTime + 0.1 && index < maxFileSize-100)
-        {
+            if (index < maxFileSize-1)
+            {
+                index += 5;
+            }
+            if (index >= maxFileSize-1)
+            {
+                index = maxFileSize - 1;
+            }
             foreach (Data data in dataList)
             {
-
                 simulateData(data);
-                if (applyPathTrace) visualizePathTrace(data);
+                visualizePathTrace(data);
             }
-            index++;
-            if (FrameStuff[0])
+
+        }
+        if (Input.GetKey(KeyCode.RightArrow) && Time.time > currTime1 + 0.5 && index < maxFileSize-1)
+        {
+            //first time entering GetKey function, reset currTimeSpeedUp timer
+            if (!firstspeed)
             {
-                FrameStuff[0].text = "Frame: " + index + " / " + maxFileSize;
+                firstspeed = true;
+
+                if (index < maxFileSize - 1)
+                {
+                    index++;
+                }
+                currTimeSpeedUp = Time.time;
+            } 
+            else if( Time.time > currTimeSpeedUp + fastforwardspeed)
+            {
+                if (index < maxFileSize - 1)
+                {
+                    index++;
+                }
+                currTimeSpeedUp = Time.time; //reset the time to fast forward
+            }
+            foreach (Data data in dataList)
+            {
+                simulateData(data);
+                visualizePathTrace(data);
             }
         }
 
-        // Right arrow key plays the animation forward in time
+
+
+        // Left arrow key plays the animation forward in time
         if (Input.GetKeyDown(KeyCode.LeftArrow) && !applySpaceTimeDensity)
         {
-            float currTime = Time.time;
+            currTime1 = Time.time;
+            firstspeed = false;
 
-        }
-        if (Input.GetKey(KeyCode.LeftArrow) && Time.time > currTime + 0.1 && index > 0)
-        {
-            rewind = true;
-            forward = false;
+            if (index > 0)
+            {
+                index -= 5;
+            }
+            if (index < 0)
+            {
+                index = 0;
+            }
             foreach (Data data in dataList)
             {
-
                 simulateData(data);
-                if (applyPathTrace) visualizePathTrace(data);
+                visualizePathTrace(data);
             }
-            index--;
-            if (FrameStuff[0])
-            {
-                FrameStuff[0].text = "Frame: " + index + " / " + maxFileSize;
-            }
-            rewind = false;
-            forward = true;
-        }
 
+        }
+        if (Input.GetKey(KeyCode.LeftArrow) && Time.time > currTime1 + 0.5 && index > 0)
+        {
+            //first time entering GetKey function, reset currTimeSpeedUp timer
+            if (!firstspeed)
+            {
+                firstspeed = true;
+
+                if (index > 0)
+                {
+                    index--;
+                }
+                currTimeSpeedUp = Time.time;
+            }
+            else if (Time.time > currTimeSpeedUp + fastforwardspeed)
+            {
+                if (index > 0)
+                {
+                    index--;
+                }
+                currTimeSpeedUp = Time.time; //reset the time to fast forward
+            }
+            if (index < 0)
+            {
+                index = 0;
+            }
+            foreach (Data data in dataList)
+            {
+                simulateData(data);
+                visualizePathTrace(data);
+            }
+        }
 
 
 
@@ -116,41 +169,39 @@ public class Simulator : BaseSimulator
         // Right arrow key plays the animation forward in time
         if (Input.GetKeyDown(".") && !applySpaceTimeDensity)
         {
-            foreach (Data data in dataList)
+            if (index < maxFileSize - 1)
             {
+                index++;
+            }
 
-                simulateData(data);
-                if (applyPathTrace) visualizePathTrace(data);
-            }
-            index++;
-            if (FrameStuff[0])
-            {
-                FrameStuff[0].text = "Frame: " + index + " / " + maxFileSize;
-            }
+
+            //if (FrameStuff[0])
+            //{
+            //FrameStuff[0].text = "Frame: " + index + " / " + maxFileSize;
+            //}
         }
 
-       
+
 
         // Right arrow key plays the animation forward in time
         if (Input.GetKeyDown(",") && !applySpaceTimeDensity)
         {
-                rewind = true;
-                forward = false;
-                foreach (Data data in dataList)
-                {
+            //rewind = true;
+            //forward = false;
 
-                    simulateData(data);
-                    if (applyPathTrace) visualizePathTrace(data);
-                }
+            if (index > 0)
+            {
                 index--;
-                if (FrameStuff[0])
-                {
-                    FrameStuff[0].text = "Frame: " + index + " / " + maxFileSize;
-                }
-                rewind = false;
-                forward = true;
-
             }
+
+            //if (FrameStuff[0])
+            //{
+            //    FrameStuff[0].text = "Frame: " + index + " / " + maxFileSize;
+            //}
+            //rewind = false;
+            //forward = true;
+
+        }
 
 
 
@@ -170,6 +221,9 @@ public class Simulator : BaseSimulator
         }
         */
 
+
+
+        /*
         // Left arrow key decreases the cut of value of the visibility window
         if (Input.GetKey(KeyCode.LeftArrow) && applySpaceTimeDensity)
         {
@@ -186,6 +240,11 @@ public class Simulator : BaseSimulator
             if (visWindow.x > visWindow.y) visWindow.x = visWindow.y;
             volObjScript.SetVisibilityWindow(visWindow);
         }
+        */
+
+
+
+
 
         /*
         if (Input.GetKey(KeyCode.DownArrow))
@@ -242,9 +301,6 @@ public class Simulator : BaseSimulator
         }
         */
         // R key restarts scene
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            Invoke(nameof(RestartScene), 1f); // Soft restart the scene (method in this script)
-        }
+
     }
 }
