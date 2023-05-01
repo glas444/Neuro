@@ -32,11 +32,12 @@ public class LookDirection : MonoBehaviour
 
     public Vector3 markerDist = new Vector3(0, 0, 0.5f);
     private bool scrolltoggle;
-    public float markerSizeMin = 0.05f;
-    public float markerSizeMax = 0.2f;
+    public float markerSizeMin;
+    public float markerSizeMax;
     public GameObject cameraLineStart;
     public GameObject cameraLineEnd;
 
+    public BaseSimulator SliderFancy;
 
     public Transform lookDir;
     public Vector3 predir;
@@ -132,50 +133,29 @@ public class LookDirection : MonoBehaviour
         }
 
         
-        if (Input.GetMouseButtonDown(0) & transparencyEnabled == false & Input.GetMouseButton(1) == false)
+        if (Input.GetMouseButtonDown(0) & transparencyEnabled == false & Input.GetMouseButton(1) == false && !SliderFancy.sliderSelecte)
         {
             markerDist = this.transform.position - marker.transform.position;
             lookDir.transform.LookAt(marker.transform.position);
         }
 
         //LEFTMOUSEBUTTON
-        if (Input.GetMouseButton(0) & transparencyEnabled == false & Input.GetMouseButton(1) == false)// && marker.activeSelf == true)
+        if (Input.GetMouseButton(0) & transparencyEnabled == false & Input.GetMouseButton(1) == false && !SliderFancy.sliderSelecte )// && marker.activeSelf == true)
         {
-            
-                
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             lookDir.transform.position = marker.transform.position - (lookDir.transform.forward * markerDist.magnitude);
             lookDir.transform.RotateAround(marker.transform.position, Vector3.up, Input.GetAxis("Mouse X"));
             lookDir.transform.RotateAround(marker.transform.position, -lookDir.transform.right, Input.GetAxis("Mouse Y"));
-            
-            
-            /*
-            float rotateDegrees = Input.GetAxis("Mouse Y");
-            Vector3 currentVector = lookDir.position - marker.transform.position;
-            currentVector.y = 0;
-            float angleBetween = Vector3.Angle(markerDist, currentVector) * (Vector3.Cross(markerDist, currentVector).y > 0 ? 1 : -1);
-            float newAngle = Mathf.Clamp(angleBetween + rotateDegrees, -angleMax, angleMax);
-            rotateDegrees = newAngle - angleBetween;
-            lookDir.transform.RotateAround(marker.transform.position, -lookDir.transform.right, rotateDegrees);
-            */
-
 
             observerPosition = lookDir.transform.position;
-
-
         }
         else if (Input.GetMouseButtonUp(0) & transparencyEnabled == false & Input.GetMouseButton(1) == false)
         {
-
             xRot = lookDir.eulerAngles.x;
             yRot = lookDir.eulerAngles.y;
-            //observerPosition = lookDir.transform.position;
-            //startrot = true;
             Cursor.visible = true;
-            //Cursor.lockState = CursorLockMode.Confined;
             Cursor.lockState = CursorLockMode.None;
-            //Debug.Log(xRot);
         }
 
 

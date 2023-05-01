@@ -108,7 +108,7 @@ public class BaseSimulator : MonoBehaviour
     protected float timeToCall;
     protected float timeDelay = 1.0f; //the code will be run every 2 seconds
     protected const string separator = "\t"; //tab separation string
-    protected int index = 0;
+    protected int index;
     protected int maxFileSize = -1;
     protected bool moreData;
     protected bool paused;
@@ -127,6 +127,12 @@ public class BaseSimulator : MonoBehaviour
     protected Material solidSkullMat;
     protected Material solidBrainMat;
 
+    public GameObject ourMarkers;
+
+    public GameObject introS;
+
+    public int recordingIndex;
+
     // The reference markers instantiated for this data
     /*public GameObject cathTop;
     public GameObject cathTL;
@@ -143,6 +149,7 @@ public class BaseSimulator : MonoBehaviour
     public GameObject cathCenter;
     public GameObject skullCenter;*/
     public GameObject marker;
+    public GameObject user;
 
 
     public Material transparentSkullMat;
@@ -179,6 +186,7 @@ public class BaseSimulator : MonoBehaviour
 
     protected virtual void init()
     {
+        SceneManager.LoadScene("DesktopScene");
         // Should be overriden if a specific implementation needs to initialise something
     }
 
@@ -187,6 +195,11 @@ public class BaseSimulator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
+        sceneLoader();
+        Debug.Log(index);
+
+
 
         //Button btn = playButton.GetComponent<Button>();
         playButton.onClick.AddListener(playPause);
@@ -199,35 +212,81 @@ public class BaseSimulator : MonoBehaviour
         forward = true;
         timeToCall = timeDelay;
 
-        // Read in all specified data
-        dataList = new List<Data>();
-        foreach (String path in paths)
+        index = 100;
+        if (!introS.activeSelf)
         {
-            dataList.Add(extractData(path));
+            
+            readData();
+            SetInitialColors();
         }
-        maxFileSize = warpData(dataList);
-        slider.maxValue = maxFileSize-1;
-        findMinMax(dataList);
-        foreach (Data data in dataList)
-        {
-            findTrueTip(data);
-        }
-        moreData = true;
-
 
         
 
-        init();
+        //init();
 
         // Sets the skull and brain to have the solid material
-        SetInitialColors();
 
-        if (applySpaceTimeDensity)
+
+
+    }
+
+    protected void sceneLoader()
+    {
+        introS.SetActive(false);
+
+        int currLev  = PlayerPrefs.GetInt("level");
+        if (currLev == 3)
         {
-            calculateSpaceTimeDensity(dataList);
-            visualizeDensity();
+            recordingIndex = 2;
+
+        }
+        if (currLev == 2)
+        {
+            recordingIndex = 2;
+
+        }
+        if (currLev == 1)
+        {
+            recordingIndex = 2;
+
+        }
+        if (currLev == 0)
+        {
+            introS.SetActive(true);
+        }
+
+        if (currLev == 3)
+        {
+            PlayerPrefs.SetInt("level", 0);
+        }
+        else
+        {
+            currLev++;
+            PlayerPrefs.SetInt("level", currLev);
         }
     }
+
+
+
+
+    protected void readData()
+    {
+        // Read in all specified data
+        dataList = new List<Data>();
+        dataList.Add(extractData(paths[recordingIndex]));
+        maxFileSize = warpData(dataList);
+        slider.maxValue = maxFileSize - 1;
+        //findMinMax(dataList);
+        findTrueTip(dataList[recordingIndex]);
+        moreData = true;
+    }
+
+    protected void visualiseData()
+    {
+        simulateData(dataList[recordingIndex]);
+        visualizePathTrace(dataList[recordingIndex]);
+    }
+
 
 
     protected virtual void handleInput()
@@ -269,14 +328,15 @@ public class BaseSimulator : MonoBehaviour
 
         if (sliderSelecte)
         {
-            foreach (Data data in dataList)
-            {
-                simulateData(data);
-                visualizePathTrace(data);
-            }
+
+            visualiseData();
+
         }
 
-
+        if (Input.GetKeyDown("k"))
+        {
+            PlayerPrefs.SetInt("level", 0);
+        }
 
     }
     public void SliderSelected()
@@ -357,148 +417,9 @@ public class BaseSimulator : MonoBehaviour
         }
     }
 
-    protected void calculateSpaceTimeDensity(List<Data> dataList)
-    {
-        Debug.Log("Calculating space time density");
-        
-        voxelGrid = new VoxelGrid(voxelsPerDim, gridLength); // Set all voxels in the result to have 0 density
-        VoxelGrid trajectoryDensity = new VoxelGrid(voxelsPerDim, gridLength); // Create a temporary grid with all densities initialized to 0
-        float center = gridLength / 2.0f; // We the origin of the data to be at the center of our cube
-        foreach (Data data in dataList)
-        {
-            trajectoryDensity.setDensities(0);
-            
-            /*
-             * Calculate the kernel area
-             * 
-             * For each line segment:
-             *      Find Voxel Va so that a is in Va
-             *      Find Voxel Vb so that b is in Vb
-             *
-             *      Find the two voxels with lowest and highest index which the kernel size falls within:
-             *          l = ceil(KernelSize / CellSize)
-             *          minX = min(Va.x, Vb.x) - l
-             *          ...
-             *          minZ = min(Va.z, Vb.z) - l
-             *          maxX = max(Va.z, Vb.z) + l
-             *          ...
-             *          maxZ = max(Va.z, Vb.z) + l
-             *
-             *      Add all voxels wich index falls within the min and max value of each dimension to a list
-             *      This is the kernel area of the line segment
-             */
-            Dictionary<int, Voxel> kernelArea = new Dictionary<int, Voxel>();
-            //List<Voxel>[] kernelSegment = new List<Voxel>[data.fileSize - 1];
-            for (int i = 0; i < data.fileSize - 1; i++)
-            {
-                Vector3Int va = trajectoryDensity.getVoxelIndexAtPosition(data.modelTip[i]);
-                Vector3Int vb = trajectoryDensity.getVoxelIndexAtPosition(data.modelTip[i + 1]);
 
-                int l = (int) Mathf.Ceil(kernelSize / trajectoryDensity.voxelLength);
-                Vector3Int min = Vector3Int.Min(va, vb) - Vector3Int.one;
-                Vector3Int max = Vector3Int.Max(va, vb) + Vector3Int.one;
 
-                for (int x = min.x; x <= max.x; x++)
-                {
-                    if (x < 0 || x >= voxelsPerDim) continue;
-                    for (int y = min.y; y <= max.y; y++)
-                    {
-                        if (y < 0 || y >= voxelsPerDim) continue;
-                        for (int z = min.z; z <= max.z; z++)
-                        {
-                            if (z < 0 || z >= voxelsPerDim) continue;
-                            //kernelSegment[i].Add(trajectoryDensity.voxels[x, y, z]);
 
-                            int idx = x + y * voxelsPerDim + z * voxelsPerDim * voxelsPerDim;
-                            if (!kernelArea.ContainsKey(idx)) kernelArea.Add(idx, trajectoryDensity.voxels[x, y, z]);
-                        }
-                    }
-                }
-            }
-
-            // For each voxel in the kernelArea
-            foreach (KeyValuePair<int, Voxel> kvp in kernelArea)
-            {
-                Voxel voxel = kvp.Value;
-                /*
-                 * Calculate the distance from the voxel to the trajectory
-                 * 
-                 * For each line segment between P_n and P_{n+1}:
-                 *      distanceLineSegment[n] = min(dist(voxel, P_n), dist(voxel, P_{n+1}), dist(voxel, infiniteLine))
-                 * distranceToTrajectory = min(distanceLineSegment)
-                 */
-                float distanceToTrajectory = float.MaxValue;
-                for (int i = 0; i < data.fileSize - 1; i++)
-                {
-                    // Calculate the distance between the voxel center and the closest point on the line segment
-                    float distanceLineSegment = HandleUtility.DistancePointLine(voxel.position, data.modelTip[i], data.modelTip[i + 1]); // Extremly time intensive
-                    //Debug.Log(distanceLineSegment);
-                    
-                    // Check if this a closer point than what was previously known
-                    if (distanceLineSegment < distanceToTrajectory) distanceToTrajectory = distanceLineSegment;
-                }
-                
-                // Linear normalisation of the density so 1 for voxels on the trajectory, and 0 at the kernel size
-                voxel.setLinearDensity(distanceToTrajectory, kernelSize);
-            }
-            voxelGrid.add(trajectoryDensity); // Add the density of each voxel to the total result
-        }
-
-        voxelGrid.normalizeDensities(dataList.Count); // Normalize by the number of trajectories to get values between 0 and 1
-        //Debug.Log("About to print grid!");
-        //voxelGrid.print();
-        Debug.Log("Done calculating the space time density!");
-    }
-
-    protected void visualizeDensity()
-    {
-        // Convert our result to the format expected by Matias Lavik's Volume Rendering Code
-        VolumeDataset dataset = new VolumeDataset();
-        
-        dataset.datasetName = "motiondata";
-        //dataset.filePath = filePath;
-        
-        dataset.dimX = voxelsPerDim;
-        dataset.dimY = voxelsPerDim;
-        dataset.dimZ = voxelsPerDim;
-        int uDimension = voxelsPerDim * voxelsPerDim * voxelsPerDim;
-        dataset.data = new float[uDimension];
-
-        // Copy the data
-        for (int x = 0; x < voxelsPerDim; x++)
-        {
-            for (int y = 0; y < voxelsPerDim; y++)
-            {
-                for (int z = 0; z < voxelsPerDim; z++)
-                {
-                    /*
-                     * Based on the code for creating a texture for the data set the one dimensional array
-                     * stores data so that idx = x + y * dimX + z * (dimX * dimY)
-                     */
-                    int idx = x + y * voxelsPerDim + z * (voxelsPerDim * voxelsPerDim);
-                    dataset.data[idx] = voxelGrid.voxels[x, y, z].density;
-                }
-            }
-        }
-        Debug.Log("Loaded dataset in range: " + dataset.GetMinDataValue() + "  -  " + dataset.GetMaxDataValue());
-        
-        dataset.FixDimensions();
-        
-        // Spawn the object
-        if (dataset != null)
-        {
-            volObjScript = VolumeObjectFactory.CreateObject(dataset);
-            
-            // Set the transfer function
-            TransferFunction tf = TransferFunctionDatabase.LoadTransferFunction(transferFunction);
-            volObjScript.transferFunction = tf;
-
-            // Rotate the visualization object back to the default rotation (it is rotated 90 degrees for some reason)
-            GameObject obj = GameObject.Find("VolumeRenderedObject_" + dataset.datasetName);
-            obj.transform.position = new Vector3(0.5f, 0.5f, 0.5f);
-            obj.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
-        }
-    }
 
     protected void visualizePathTrace(Data data)
     {
@@ -593,20 +514,20 @@ public class BaseSimulator : MonoBehaviour
                 index--;
             }*/
 
-            /*
+            
             if (forward)
             {
                 index++;
-            }*/
+            }
 
 
             // Update the GUI
-            /*
+            
             if (FrameStuff[0])
             {
             FrameStuff[0].text = "Frame: " + index +" / " + maxFileSize;
             }
-            */
+            
             //Debug.Log("index" + index);
 
             if (index >= maxFileSize-1)
@@ -830,7 +751,7 @@ public class BaseSimulator : MonoBehaviour
         data.fileSize = FindSize(sr); //find size of file
 
         // Initialize the markers for this data
-        GameObject ourMarkers = Instantiate(markers);
+        ourMarkers = Instantiate(markers);
         //ourMarkers.transform.parent = ;
         ourMarkers.name = "markers_" + path;
         extractDataMarkersHelper(data, ourMarkers);

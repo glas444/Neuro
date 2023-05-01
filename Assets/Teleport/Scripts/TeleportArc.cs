@@ -31,7 +31,7 @@ public class TeleportArc : MonoBehaviour
     private float arcTimeOffset = 0.0f;
     //private float prevThickness = 0.0f;
     //private int prevSegmentCount = 0;
-    private bool showArc = true;
+    private bool showArc = false;
     private Vector3 startPos;
     private Vector3 projectileVelocity;
     private bool useGravity = true;
@@ -47,16 +47,36 @@ public class TeleportArc : MonoBehaviour
     void Start()
     {
         arcTimeOffset = Time.time;
-        Show();
+
+
     }
 
 
     //-------------------------------------------------
     void Update()
     {
-        SetArcData();
 
-        DrawArc(out RaycastHit hitInfo);
+        // Spacebar key used for annotation
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            if (!showArc)
+            {
+                Show();
+            }
+            else
+            {
+                Hide();
+            }
+
+        }
+
+        if (showArc)
+        {
+            SetArcData();
+
+            DrawArc(out RaycastHit hitInfo);
+        }
+
         /*
         //scale arc to match player scale
         scale = .instance.transform.lossyScale.x;
@@ -114,7 +134,8 @@ public class TeleportArc : MonoBehaviour
         public void SetArcData()
         {
             startPos = camera1.transform.position;
-            projectileVelocity = (marker1.transform.position - camera1.transform.position)*2;
+            Vector3 projectileVelo = (marker1.transform.position - camera1.transform.position);
+            projectileVelocity = projectileVelo/projectileVelo.magnitude;
             useGravity = false;
 
             //if (arcInvalid && !pointerAtBadAngle)
@@ -275,17 +296,8 @@ public class TeleportArc : MonoBehaviour
                 float segmentEndTime = segmentStartTime + timeStep;
                 Vector3 segmentEndPos = GetArcPositionAtTime(segmentEndTime);
 
-                /*if (Physics.Linecast(segmentStartPos, segmentEndPos, out hitInfo, traceLayerMask))
-                {
-                    if (hitInfo.collider.GetComponent<IgnoreTeleportTrace>() == null)
-                    {
-                        Util.DrawCross(hitInfo.point, Color.red, 0.5f);
-                        float segmentDistance = Vector3.Distance(segmentStartPos, segmentEndPos);
-                        float hitTime = segmentStartTime + (timeStep * (hitInfo.distance / segmentDistance));
-                        return hitTime;
-                    }
-                }
-                */
+
+                
 
                 segmentStartTime = segmentEndTime;
                 segmentStartPos = segmentEndPos;

@@ -188,7 +188,7 @@ namespace Valve.VR.InteractionSystem
 
 
 			//Trace to see if the pointer hit anything
-			RaycastHit hitInfo;
+			//RaycastHit hitInfo;
 			teleportArc.SetArcData();
 
 

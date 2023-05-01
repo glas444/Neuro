@@ -59,26 +59,18 @@ public class AnnotationScript : MonoBehaviour
             vrSim = GameObject.FindGameObjectWithTag("VRSimulator").GetComponent<VRSimulator>();
         }
 
-        BrainCollider = GameObject.Find("Brain").GetComponent<MeshCollider>();
+        //BrainCollider = GameObject.Find("Brain").GetComponent<MeshCollider>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (isDesktopVersion)
-        {
-            // Spacebar key used for annotation
-            if (Input.GetKeyDown(KeyCode.F))
-            {
-                InitiateAnnotation();
-            }
-
-        }
 
 
 
 
 
+        /*
         if (laserActive)
         {
             RaycastHit hit;
@@ -93,7 +85,7 @@ public class AnnotationScript : MonoBehaviour
 
             }
 
-        }
+        }*/
     }
     private void InitiateAnnotation()
     {

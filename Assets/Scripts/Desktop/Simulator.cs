@@ -29,35 +29,32 @@ public class Simulator : BaseSimulator
     override protected void handleInput()
     {
 
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetKeyDown("i"))
         {
-
+            Debug.Log(index);
         }
 
-        //Debug.Log("PC index= " + index);
-        // Toggle transparency on and off with the Q key
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            init();
+        }
+
+
+        // Toggle transparency on and off
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             ToggleTransparency();
         }
-        if (transparencyEnabled) // Check if we want to adjust the transparency (Disabled?)
-        {
-            if (Input.GetKey(KeyCode.Mouse0))
-            {
-                // AdjustTransparency(10);
-            }
-            if (Input.GetKey(KeyCode.Mouse1))
-            {
-                //AdjustTransparency(-10);
-            }
-        }
 
+
+        // Pause/Play the animation
         if (Input.GetKeyDown(KeyCode.Space))
         {
             playPause();
-
         }
 
+
+        //-------------------------------- RIGHT --------------------------------
 
         // Right arrow key plays the animation forward in time
         if (Input.GetKeyDown(KeyCode.RightArrow) && !applySpaceTimeDensity)
@@ -73,11 +70,7 @@ public class Simulator : BaseSimulator
             {
                 index = maxFileSize - 1;
             }
-            foreach (Data data in dataList)
-            {
-                simulateData(data);
-                visualizePathTrace(data);
-            }
+            //visualiseData();
 
         }
         if (Input.GetKey(KeyCode.RightArrow) && Time.time > currTime1 + 0.5 && index < maxFileSize-1)
@@ -101,14 +94,10 @@ public class Simulator : BaseSimulator
                 }
                 currTimeSpeedUp = Time.time; //reset the time to fast forward
             }
-            foreach (Data data in dataList)
-            {
-                simulateData(data);
-                visualizePathTrace(data);
-            }
+            //visualiseData();
         }
 
-
+        //-------------------------------- LEFT --------------------------------
 
         // Left arrow key plays the animation forward in time
         if (Input.GetKeyDown(KeyCode.LeftArrow) && !applySpaceTimeDensity)
@@ -124,11 +113,7 @@ public class Simulator : BaseSimulator
             {
                 index = 0;
             }
-            foreach (Data data in dataList)
-            {
-                simulateData(data);
-                visualizePathTrace(data);
-            }
+            //visualiseData();
 
         }
         if (Input.GetKey(KeyCode.LeftArrow) && Time.time > currTime1 + 0.5 && index > 0)
@@ -156,70 +141,43 @@ public class Simulator : BaseSimulator
             {
                 index = 0;
             }
-            foreach (Data data in dataList)
-            {
-                simulateData(data);
-                visualizePathTrace(data);
-            }
+            //visualiseData();
         }
 
 
 
 
-        // Right arrow key plays the animation forward in time
+
+        //-------------------------------- RIGHT --------------------------------
+
+        // Step one frame forward in time
         if (Input.GetKeyDown(".") && !applySpaceTimeDensity)
         {
             if (index < maxFileSize - 1)
             {
                 index++;
             }
-
-
-            //if (FrameStuff[0])
-            //{
-            //FrameStuff[0].text = "Frame: " + index + " / " + maxFileSize;
-            //}
+            //visualiseData();
         }
 
 
 
-        // Right arrow key plays the animation forward in time
-        if (Input.GetKeyDown(",") && !applySpaceTimeDensity)
-        {
-            //rewind = true;
-            //forward = false;
 
+        // Step one frame back in time
+            if (Input.GetKeyDown(",") && !applySpaceTimeDensity)
+        {
             if (index > 0)
             {
                 index--;
             }
 
-            //if (FrameStuff[0])
-            //{
-            //    FrameStuff[0].text = "Frame: " + index + " / " + maxFileSize;
-            //}
-            //rewind = false;
-            //forward = true;
-
+            //visualiseData();
         }
 
 
 
 
-        /*
-        // Right arrow key plays the animation forward in time
-        if (Input.GetKeyDown(KeyCode.RightArrow) && !applySpaceTimeDensity)
-        {
-            rewind = false;
-            forward = true;
-        }
-        // Left arrow key rewinds the animation
-        else if (Input.GetKeyDown(KeyCode.LeftArrow) && !applySpaceTimeDensity)
-        {
-            rewind = true;
-            forward = false;
-        }
-        */
+
 
 
 
