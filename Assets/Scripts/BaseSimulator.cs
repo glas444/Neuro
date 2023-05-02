@@ -133,6 +133,12 @@ public class BaseSimulator : MonoBehaviour
 
     public int recordingIndex;
 
+    public float timeStart;
+
+    public int nrMoveSteps;
+    public int nrMarkerSteps;
+    public int nrTimeSteps;
+
     // The reference markers instantiated for this data
     /*public GameObject cathTop;
     public GameObject cathTL;
@@ -195,9 +201,13 @@ public class BaseSimulator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        timeStart = Time.time;
+        nrMoveSteps = 0;
+        nrMarkerSteps = 0;
+        nrTimeSteps = 0;
 
+        index = 0;
         sceneLoader();
-        Debug.Log(index);
 
 
 
@@ -212,15 +222,16 @@ public class BaseSimulator : MonoBehaviour
         forward = true;
         timeToCall = timeDelay;
 
-        index = 100;
-        if (!introS.activeSelf)
+        readData();
+        SetInitialColors();
+
+        if (introS.activeSelf)
         {
-            
-            readData();
-            SetInitialColors();
+            ourMarkers.SetActive(false);
+            paused = true;
+            //HideBrain();
         }
 
-        
 
         //init();
 
@@ -237,7 +248,7 @@ public class BaseSimulator : MonoBehaviour
         int currLev  = PlayerPrefs.GetInt("level");
         if (currLev == 3)
         {
-            recordingIndex = 2;
+            recordingIndex = 3;
 
         }
         if (currLev == 2)
@@ -247,7 +258,7 @@ public class BaseSimulator : MonoBehaviour
         }
         if (currLev == 1)
         {
-            recordingIndex = 2;
+            recordingIndex = 1;
 
         }
         if (currLev == 0)
@@ -266,26 +277,25 @@ public class BaseSimulator : MonoBehaviour
         }
     }
 
-
-
-
+    
     protected void readData()
     {
         // Read in all specified data
         dataList = new List<Data>();
         dataList.Add(extractData(paths[recordingIndex]));
-        maxFileSize = warpData(dataList);
+        maxFileSize = dataList[0].fileSize;
         slider.maxValue = maxFileSize - 1;
-        //findMinMax(dataList);
-        findTrueTip(dataList[recordingIndex]);
+
+        findTrueTip(dataList[0]);
         moreData = true;
     }
 
     protected void visualiseData()
     {
-        simulateData(dataList[recordingIndex]);
-        visualizePathTrace(dataList[recordingIndex]);
+        simulateData(dataList[0]);
+        visualizePathTrace(dataList[0]);
     }
+
 
 
 
@@ -302,7 +312,11 @@ public class BaseSimulator : MonoBehaviour
             Debug.Log("Quit");
             UnityEditor.EditorApplication.isPlaying = false;
         }
-
+        if (Input.GetKeyDown("k"))
+        {
+            PlayerPrefs.SetInt("level", 0);
+            init();
+        }
 
         handleInput();
 
@@ -333,10 +347,7 @@ public class BaseSimulator : MonoBehaviour
 
         }
 
-        if (Input.GetKeyDown("k"))
-        {
-            PlayerPrefs.SetInt("level", 0);
-        }
+
 
     }
     public void SliderSelected()
@@ -501,11 +512,9 @@ public class BaseSimulator : MonoBehaviour
             //Debug.Log("\t HeadTopLeft Last: (" + dataList[1].headTopLeft[dataList[1].index, 0] + ", " + dataList[1].headTopLeft[dataList[1].index, 1] + ", " + dataList[1].headTopLeft[dataList[1].index, 2] + ")");
 
             // Simulate each data series
-            foreach (Data data in dataList)
-            {
-                simulateData(data);
-                if(applyPathTrace) visualizePathTrace(data);
-            }
+
+            simulateData(dataList[0]);
+            if(applyPathTrace) visualizePathTrace(dataList[0]);
 
 
             /*
@@ -607,28 +616,22 @@ public class BaseSimulator : MonoBehaviour
         }
     }
 
+    /*
     // Make sure that all data sets are of equal length
     protected int warpData(List<Data> dataList)
     {
         // Find the data set with most data points
         int maxSize = -1;
-        foreach(Data data in dataList)
-        {
-            //Debug.Log("Data size: " + data.fileSize);
-            maxSize = Math.Max(maxSize, data.fileSize);
-        }
 
+        //Debug.Log("Data size: " + data.fileSize);
+        maxSize = Math.Max(maxSize, dataList[0].fileSize);
+
+        Debug.Log(dataList[0].fileSize);
         // Check if we should warp the data for this visualization
-        if (!applyWarpData) return maxSize;
-
-        // Warp all data sets so they are of equal length
-        foreach(Data data in dataList)
-        {
-            if (data.fileSize != maxSize) warpData(data, maxSize);
-        }
-
         return maxSize;
-    }
+
+
+    }*/
 
     private void warpDataCopyHelper(float[,] newArray, float[,] oldArray, int iNew, int iOld, int secondN)
     {
@@ -1101,6 +1104,14 @@ public class BaseSimulator : MonoBehaviour
             BrainSolid();
             transparencyEnabled = false;
         }
+    }
+
+    protected void HideBrain()
+    {
+        Renderer skullRenderer = phantomSkull.GetComponent<Renderer>();
+        skullRenderer.enabled = false;
+        Renderer brainRenderer = phantomBrain.GetComponent<Renderer>();
+        brainRenderer.enabled = false;
     }
     protected void SetInitialColors()
     {

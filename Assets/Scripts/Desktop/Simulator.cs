@@ -36,6 +36,13 @@ public class Simulator : BaseSimulator
 
         if (Input.GetKeyDown(KeyCode.Return))
         {
+            float timeRes = Time.time-timeStart;
+
+            string res = recordingIndex + "," + marker.transform.position.x + "," + marker.transform.position.y + "," + marker.transform.position.z + "," + marker.transform.localScale.x + ","+ timeRes + "," +nrMoveSteps+ "," +nrMarkerSteps + "," + nrTimeSteps;
+            using (StreamWriter writer = new StreamWriter("Result.txt",true))
+            {
+                writer.WriteLine(res);
+            }
             init();
         }
 
@@ -50,6 +57,7 @@ public class Simulator : BaseSimulator
         // Pause/Play the animation
         if (Input.GetKeyDown(KeyCode.Space))
         {
+            nrTimeSteps++;
             playPause();
         }
 
@@ -59,6 +67,7 @@ public class Simulator : BaseSimulator
         // Right arrow key plays the animation forward in time
         if (Input.GetKeyDown(KeyCode.RightArrow) && !applySpaceTimeDensity)
         {
+            nrTimeSteps++;
             currTime1 = Time.time;
             firstspeed = false;
 
@@ -70,7 +79,7 @@ public class Simulator : BaseSimulator
             {
                 index = maxFileSize - 1;
             }
-            //visualiseData();
+            visualiseData();
 
         }
         if (Input.GetKey(KeyCode.RightArrow) && Time.time > currTime1 + 0.5 && index < maxFileSize-1)
@@ -94,7 +103,7 @@ public class Simulator : BaseSimulator
                 }
                 currTimeSpeedUp = Time.time; //reset the time to fast forward
             }
-            //visualiseData();
+            visualiseData();
         }
 
         //-------------------------------- LEFT --------------------------------
@@ -102,6 +111,7 @@ public class Simulator : BaseSimulator
         // Left arrow key plays the animation forward in time
         if (Input.GetKeyDown(KeyCode.LeftArrow) && !applySpaceTimeDensity)
         {
+            nrTimeSteps++;
             currTime1 = Time.time;
             firstspeed = false;
 
@@ -113,7 +123,7 @@ public class Simulator : BaseSimulator
             {
                 index = 0;
             }
-            //visualiseData();
+            visualiseData();
 
         }
         if (Input.GetKey(KeyCode.LeftArrow) && Time.time > currTime1 + 0.5 && index > 0)
@@ -141,7 +151,7 @@ public class Simulator : BaseSimulator
             {
                 index = 0;
             }
-            //visualiseData();
+            visualiseData();
         }
 
 
@@ -153,25 +163,27 @@ public class Simulator : BaseSimulator
         // Step one frame forward in time
         if (Input.GetKeyDown(".") && !applySpaceTimeDensity)
         {
+            nrTimeSteps++;
             if (index < maxFileSize - 1)
             {
                 index++;
             }
-            //visualiseData();
+            visualiseData();
         }
 
 
 
 
         // Step one frame back in time
-            if (Input.GetKeyDown(",") && !applySpaceTimeDensity)
+        if (Input.GetKeyDown(",") && !applySpaceTimeDensity)
         {
+            nrTimeSteps++;
             if (index > 0)
             {
                 index--;
             }
 
-            //visualiseData();
+            visualiseData();
         }
 
 

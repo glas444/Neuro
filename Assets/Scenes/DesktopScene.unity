@@ -4118,13 +4118,17 @@ MonoBehaviour:
   kernelSize: 0.05
   enableSimulation: 1
   paths:
+  - Assets/Recordings/catheter001.txt
   - Assets/Recordings/catheter002.txt
-  - Assets/Recordings/catheter002.txt
-  - Assets/Recordings/catheter002.txt
+  - Assets/Recordings/catheter003.txt
   maxPlaybackSpeed: 150
   ourMarkers: {fileID: 0}
   introS: {fileID: 428899597}
   recordingIndex: 0
+  timeStart: 0
+  nrMoveSteps: 0
+  nrMarkerSteps: 0
+  nrTimeSteps: 0
   marker: {fileID: 1657796996}
   user: {fileID: 2015680027}
   transparentSkullMat: {fileID: 2100000, guid: 6851123c4974f894a9765c2d6be86ae9, type: 2}
@@ -7272,7 +7276,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &919132148601330701
 GameObject:
   m_ObjectHideFlags: 0

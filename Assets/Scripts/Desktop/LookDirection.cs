@@ -68,25 +68,49 @@ public class LookDirection : MonoBehaviour
 
         if(Input.GetMouseButton(0) == false)
         {
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                SliderFancy.nrMoveSteps++;
+            }
             if (Input.GetKey(KeyCode.W))
             {
                 observerPosition += lookDir.forward * moveSpeed / 50;
+            }
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                SliderFancy.nrMoveSteps++;
             }
             if (Input.GetKey(KeyCode.S))
             {
                 observerPosition -= lookDir.forward * moveSpeed / 50;
             }
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                SliderFancy.nrMoveSteps++;
+            }
             if (Input.GetKey(KeyCode.A))
             {
                 observerPosition -= lookDir.right * moveSpeed / 50;
+            }
+            if (Input.GetKeyDown(KeyCode.D))
+            {
+                SliderFancy.nrMoveSteps++;
             }
             if (Input.GetKey(KeyCode.D))
             {
                 observerPosition += lookDir.right * moveSpeed / 50;
             }
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                SliderFancy.nrMoveSteps++;
+            }
             if (Input.GetKey(KeyCode.Q))
             {
                 observerPosition.y += moveSpeed / 50;
+            }
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                SliderFancy.nrMoveSteps++;
             }
             if (Input.GetKey(KeyCode.E))
             {
@@ -99,7 +123,7 @@ public class LookDirection : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1) & Input.GetMouseButton(0) == false)
         {
-
+            SliderFancy.nrMoveSteps++;
             //lookDir.rotation = this.transform.rotation;
             //lookDir.position = this.transform.position;
         }
@@ -135,6 +159,7 @@ public class LookDirection : MonoBehaviour
         
         if (Input.GetMouseButtonDown(0) & transparencyEnabled == false & Input.GetMouseButton(1) == false && !SliderFancy.sliderSelecte)
         {
+            SliderFancy.nrMoveSteps++;
             markerDist = this.transform.position - marker.transform.position;
             lookDir.transform.LookAt(marker.transform.position);
         }
@@ -142,6 +167,7 @@ public class LookDirection : MonoBehaviour
         //LEFTMOUSEBUTTON
         if (Input.GetMouseButton(0) & transparencyEnabled == false & Input.GetMouseButton(1) == false && !SliderFancy.sliderSelecte )// && marker.activeSelf == true)
         {
+
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             lookDir.transform.position = marker.transform.position - (lookDir.transform.forward * markerDist.magnitude);
@@ -161,6 +187,7 @@ public class LookDirection : MonoBehaviour
 
         if (Input.GetMouseButtonDown(2))
         {
+            SliderFancy.nrMarkerSteps++;
             if (marker.activeSelf == false)
             {
                 transparencyEnabled = false;

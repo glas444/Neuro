@@ -32,7 +32,7 @@ public class VRSimulator : BaseSimulator
     public Material solidMat;
 
     public Vector3 markerDist;
-    public float markerSizeMin = 0.0001f;
+    public float markerSizeMin = 0.001f;
     public float markerSizeMax = 0.1f;
 
     public float LleftSens = -0.8f;
@@ -304,12 +304,8 @@ public class VRSimulator : BaseSimulator
 
             if (timeInputVal.y > RupSens  && index < maxFileSize - 10) // If there is input to reduce the playback speed
             {
-                foreach (Data data in dataList)
-                {
+                visualiseData();
 
-                    simulateData(data);
-                    if (applyPathTrace) visualizePathTrace(data);
-                }
                 index++;
                 if (FrameStuff[0])
                 {
@@ -317,15 +313,13 @@ public class VRSimulator : BaseSimulator
                 }
             }
 
+            /*
             else if (timeInputVal.y < RdownSens && index > 0) // If there is input to reduce the playback speed
             {
                 rewind = true;
                 forward = false;
-                foreach (Data data in dataList)
-                {
-                    simulateData(data);
-                    if (applyPathTrace) visualizePathTrace(data);
-                }
+                visualiseData();
+
                 index--;
                 if (FrameStuff[0])
                 {
@@ -333,7 +327,7 @@ public class VRSimulator : BaseSimulator
                 }
                 rewind = false;
                 forward = true;
-            }
+            }*/
         }
  
 
@@ -429,10 +423,10 @@ public class VRSimulator : BaseSimulator
                 markerSphere.transform.localScale -= 0.0005f * new Vector3(1, 1, 1);
             }
 
-            if (markerSphere.transform.localScale.x < 0.002f)
+            if (markerSphere.transform.localScale.x < 0.001f)
             {
 
-                markerSphere.transform.localScale = new Vector3(0.002f, 0.002f, 0.002f);
+                markerSphere.transform.localScale = new Vector3(0.001f, 0.001f, 0.00f);
             }
             else if (markerSphere.transform.localScale.x > markerSizeMax)
             {
