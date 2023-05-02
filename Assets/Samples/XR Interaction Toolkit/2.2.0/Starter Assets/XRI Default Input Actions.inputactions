@@ -886,6 +886,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "NextReturn",
+                    "type": "Value",
+                    "id": "a91b53c5-f16a-4713-937f-147ba25c390c",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -1018,6 +1027,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Rtrigger",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d779c824-04b3-49da-846d-8c9f9f6d7944",
+                    "path": "<ViveController>{RightHand}/grip",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "NextReturn",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

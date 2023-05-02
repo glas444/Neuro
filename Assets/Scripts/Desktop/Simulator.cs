@@ -24,7 +24,10 @@ public class Simulator : BaseSimulator
     private bool firstspeed = false;
     private float densityVisSpeed = 0.2f;
 
-
+    override protected void checkVR()
+    {
+        isVR = false;
+    }
 
     override protected void handleInput()
     {

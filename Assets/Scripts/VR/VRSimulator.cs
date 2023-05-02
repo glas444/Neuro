@@ -64,6 +64,7 @@ public class VRSimulator : BaseSimulator
 
     private float currTime;
 
+    [SerializeField] private InputActionReference NextReturn = null;
     [SerializeField] private InputActionReference togglePlay = null;
     [SerializeField] private InputActionReference timeController = null;
     [SerializeField] private InputActionReference annotatePoint = null;
@@ -93,6 +94,7 @@ public class VRSimulator : BaseSimulator
     Vector3 initialObjectDirectionRight;
     public bool twoHandGrab = false; // bool, so you know when grabbed with 2 hands
 
+    
 
     public void setLeftHit()
     {
@@ -104,12 +106,16 @@ public class VRSimulator : BaseSimulator
         rightHit = !rightHit;
 
     }
-
+    override protected void checkVR()
+    {
+        isVR = true;
+    }
 
     override protected void handleInput()
     {
         // Handle VR input LEFT
         Vector2 timeInputVal = timeController.action.ReadValue<Vector2>();
+
 
         float playPauseBool = togglePlay.action.ReadValue<float>();
         float Rtrackpad = RtrackClick.action.ReadValue<float>();
@@ -118,6 +124,7 @@ public class VRSimulator : BaseSimulator
         // Handle VR input RIGHT
         Vector2 spaceInputVal = spaceController.action.ReadValue<Vector2>();
         float toggleVal = toggleTransparent.action.ReadValue<float>();
+        float returnE = NextReturn.action.ReadValue<float>();
         float Ltrackpad = LtrackClick.action.ReadValue<float>();
         LtriggerVal = LtriggerZ.action.ReadValue<float>();
 
@@ -271,7 +278,22 @@ public class VRSimulator : BaseSimulator
 
             ToggleTransparency();
         }
-         
+
+
+        if (returnE > 0.8f && !transparencyMarkerEnabled) //If we got input to toggle transparency
+        {
+            float timeRes = Time.time - timeStart;
+
+            string res = recordingIndex + "," + markerSphere.transform.position.x + "," + markerSphere.transform.position.y + "," + markerSphere.transform.position.z + "," + markerSphere.transform.localScale.x + "," + timeRes + "," + nrMoveSteps + "," + nrMarkerSteps + "," + nrTimeSteps;
+            using (StreamWriter writer = new StreamWriter("ResultVR.txt", true))
+            {
+                writer.WriteLine(res);
+            }
+            init();
+        }
+
+
+
         if (toggleVal > 0.8f && !transparencyToggleInProgress) //If we got input to toggle transparency
         {
             //Debug.Log(toggleVal);
@@ -347,12 +369,7 @@ public class VRSimulator : BaseSimulator
             if (timeInputVal.x > RrightSens && Time.time > currTime + 0.1 && index < maxFileSize - 10) // If there is input to reduce the playback speed
             {
                 //Debug.Log("INNIT");
-                foreach (Data data in dataList)
-                {
-
-                    simulateData(data);
-                    if (applyPathTrace) visualizePathTrace(data);
-                }
+                visualiseData();
                 index++;
                 if (FrameStuff[0])
                 {
@@ -364,11 +381,7 @@ public class VRSimulator : BaseSimulator
             {
                 rewind = true;
                 forward = false;
-                foreach (Data data in dataList)
-                {
-                    simulateData(data);
-                    if (applyPathTrace) visualizePathTrace(data);
-                }
+                visualiseData();
                 index--;
                 if (FrameStuff[0])
                 {

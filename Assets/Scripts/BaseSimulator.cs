@@ -134,7 +134,7 @@ public class BaseSimulator : MonoBehaviour
     public int recordingIndex;
 
     public float timeStart;
-
+    public bool isVR;
     public int nrMoveSteps;
     public int nrMarkerSteps;
     public int nrTimeSteps;
@@ -192,7 +192,14 @@ public class BaseSimulator : MonoBehaviour
 
     protected virtual void init()
     {
-        SceneManager.LoadScene("DesktopScene");
+        if (isVR)
+        {
+            SceneManager.LoadScene("VRScene");
+        }
+        else { 
+            SceneManager.LoadScene("DesktopScene");
+        }
+
         // Should be overriden if a specific implementation needs to initialise something
     }
 
@@ -201,6 +208,7 @@ public class BaseSimulator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        checkVR();
         timeStart = Time.time;
         nrMoveSteps = 0;
         nrMarkerSteps = 0;
@@ -248,17 +256,17 @@ public class BaseSimulator : MonoBehaviour
         int currLev  = PlayerPrefs.GetInt("level");
         if (currLev == 3)
         {
-            recordingIndex = 3;
+            recordingIndex = 2;
 
         }
         if (currLev == 2)
         {
-            recordingIndex = 2;
+            recordingIndex = 1;
 
         }
         if (currLev == 1)
         {
-            recordingIndex = 1;
+            recordingIndex = 0;
 
         }
         if (currLev == 0)
@@ -298,10 +306,14 @@ public class BaseSimulator : MonoBehaviour
 
 
 
+    protected virtual void checkVR()
+    {
+        // Should be overriden with the implementation specific controls
+    }
 
     protected virtual void handleInput()
     {
-        // Should be overriden with the implementation specific controlls
+        // Should be overriden with the implementation specific controls
     }
 
     protected void Update()
