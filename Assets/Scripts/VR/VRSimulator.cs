@@ -94,7 +94,10 @@ public class VRSimulator : BaseSimulator
     Vector3 initialObjectDirectionRight;
     public bool twoHandGrab = false; // bool, so you know when grabbed with 2 hands
 
-    
+    private bool firstspeed = false;
+    private float currTimeSpeedUp;
+    private float fastforwardspeed = 0.005f;
+
 
     public void setLeftHit()
     {
@@ -129,10 +132,10 @@ public class VRSimulator : BaseSimulator
         LtriggerVal = LtriggerZ.action.ReadValue<float>();
 
         //Debug.Log("VRindex=  "+ index);
-
+        /*
         if (rightHit == true && RtriggerVal >= triggerSens)
         {
-
+            
             Renderer rightCtrl = rightHTC.GetComponent<MeshRenderer>();
 
             if (RjustGrabbed)
@@ -200,28 +203,32 @@ public class VRSimulator : BaseSimulator
             rightCtrl.enabled = true;
             RjustGrabbed = true;
 
-        }
+        }*/
 
-        if(leftHit == true && LtriggerVal >= triggerSens )
+        if (LtriggerVal >= triggerSens )
         {
-            //Debug.Log("Right Grab");
+
+            Debug.Log("Right Grab");
             //Debug.Log("RIGHT");
-            Renderer leftCtrl = leftHTC.GetComponent<MeshRenderer>();
+            //Renderer leftCtrl = leftHTC.GetComponent<MeshRenderer>();
 
             if (LjustGrabbed)
             {
+                ToggleMarkerTransparency();
+                nrMarkerSteps++;
                 //scaleCubeDist = scaleSphere.transform.position - leftController.transform.position;
-                //Debug.Log(Time.time);
+                Debug.Log("TOGGLETRANSPARANCY!");
             }
             LjustGrabbed = false;
 
             //scaleSphere.transform.position = leftController.transform.position + scaleCubeDist;
-            leftCtrl.enabled = false;
+            //leftCtrl.enabled = false;
         }
+        
         else
         {
-            Renderer leftCtrl = rightHTC.GetComponent<MeshRenderer>();
-            leftCtrl.enabled = true;
+            //Renderer leftCtrl = rightHTC.GetComponent<MeshRenderer>();
+            //leftCtrl.enabled = true;
             LjustGrabbed = true;
 
         }
@@ -259,8 +266,10 @@ public class VRSimulator : BaseSimulator
 
 
         //Debug.Log(Ltrackpad);
+        /*
         if (playPauseBool==1 && prePlayPauseBool==0)
         {
+            
             if (paused == true)
             {
                 paused = false;
@@ -271,7 +280,7 @@ public class VRSimulator : BaseSimulator
             }
             
         }
-        prePlayPauseBool = playPauseBool;
+        prePlayPauseBool = playPauseBool;*/
 
         if (Input.GetKeyDown(KeyCode.Q))
         {
@@ -298,7 +307,8 @@ public class VRSimulator : BaseSimulator
         {
             //Debug.Log(toggleVal);
             transparencyToggleInProgress = true;
-            ToggleTransparency(); // Toggle transparency instantly
+
+            //ToggleTransparency(); // Toggle transparency instantly
         }
         else if (toggleVal < 0.1f && transparencyToggleInProgress) // If we no longer have input to toggle transparency
         {
@@ -308,8 +318,10 @@ public class VRSimulator : BaseSimulator
         ///////////////////////////////////////////////////////////////////////
 
         if (timeInputVal != Vector2.zero && Rtrackpad == 1 && preRtrackpad == 0 &&
-            timeInputVal.y < RupSens && timeInputVal.y > RdownSens && timeInputVal.x < RrightSens && timeInputVal.x > RleftSens)
+            timeInputVal.y < RupSens && timeInputVal.y > RdownSens &&
+            timeInputVal.x < RrightSens && timeInputVal.x > RleftSens)
         {
+            nrTimeSteps++;
             if (paused)
             {
                 paused = false;
@@ -326,30 +338,23 @@ public class VRSimulator : BaseSimulator
 
             if (timeInputVal.y > RupSens  && index < maxFileSize - 10) // If there is input to reduce the playback speed
             {
-                visualiseData();
-
-                index++;
-                if (FrameStuff[0])
+                nrTimeSteps++;
+                if (index < maxFileSize - 1)
                 {
-                    FrameStuff[0].text = "Frame: " + index + " / " + maxFileSize;
+                    index++;
                 }
+                visualiseData();
             }
-
-            /*
-            else if (timeInputVal.y < RdownSens && index > 0) // If there is input to reduce the playback speed
+            else if (timeInputVal.y < RdownSens) // If there is input to reduce the playback speed
             {
-                rewind = true;
-                forward = false;
-                visualiseData();
-
-                index--;
-                if (FrameStuff[0])
+                nrTimeSteps++;
+                if (index > 0)
                 {
-                    FrameStuff[0].text = "Frame: " + index + " / " + maxFileSize;
+                    index--;
                 }
-                rewind = false;
-                forward = true;
-            }*/
+
+                visualiseData();
+            }
         }
  
 
@@ -357,7 +362,26 @@ public class VRSimulator : BaseSimulator
 
         if (timeInputVal != Vector2.zero && Rtrackpad == 1 && preRtrackpad == 0)
         {
+            nrTimeSteps++;
             currTime = Time.time;
+            firstspeed = false;
+            if (index < maxFileSize - 1 && timeInputVal.x > RrightSens)
+            {
+                index += 5;
+            }
+            if (index >= maxFileSize - 1 && timeInputVal.x > RrightSens)
+            {
+                index = maxFileSize - 1;
+            }
+            if (index > 0 && timeInputVal.x < RleftSens)
+            {
+                index -= 5;
+            }
+            if (index < 0 && timeInputVal.x < RleftSens)
+            {
+                index = 0;
+            }
+            visualiseData();
         }
 
         if (timeInputVal != Vector2.zero && Rtrackpad == 1) // If there is input controlling the playback
@@ -366,29 +390,55 @@ public class VRSimulator : BaseSimulator
             
             //Debug.Log("TIME");
 
-            if (timeInputVal.x > RrightSens && Time.time > currTime + 0.1 && index < maxFileSize - 10) // If there is input to reduce the playback speed
+            if (timeInputVal.x > RrightSens && Time.time > currTime + 0.5 && index < maxFileSize - 1) // If there is input to reduce the playback speed
             {
-                //Debug.Log("INNIT");
-                visualiseData();
-                index++;
-                if (FrameStuff[0])
+                if (!firstspeed)
                 {
-                    FrameStuff[0].text = "Frame: " + index + " / " + maxFileSize;
+                    firstspeed = true;
+
+                    if (index < maxFileSize - 1)
+                    {
+                        index++;
+                    }
+                    currTimeSpeedUp = Time.time;
                 }
+                else if (Time.time > currTimeSpeedUp + fastforwardspeed)
+                {
+                    if (index < maxFileSize - 1)
+                    {
+                        index++;
+                    }
+                    currTimeSpeedUp = Time.time; //reset the time to fast forward
+                }
+                visualiseData();
             }
 
             else if (timeInputVal.x < RleftSens && Time.time > currTime + 0.1 && index > 0) // If there is input to reduce the playback speed
             {
-                rewind = true;
-                forward = false;
-                visualiseData();
-                index--;
-                if (FrameStuff[0])
+                //first time entering GetKey function, reset currTimeSpeedUp timer
+                if (!firstspeed)
                 {
-                    FrameStuff[0].text = "Frame: " + index + " / " + maxFileSize;
+                    firstspeed = true;
+
+                    if (index > 0)
+                    {
+                        index--;
+                    }
+                    currTimeSpeedUp = Time.time;
                 }
-                rewind = false;
-                forward = true;
+                else if (Time.time > currTimeSpeedUp + fastforwardspeed)
+                {
+                    if (index > 0)
+                    {
+                        index--;
+                    }
+                    currTimeSpeedUp = Time.time; //reset the time to fast forward
+                }
+                if (index < 0)
+                {
+                    index = 0;
+                }
+                visualiseData();
             }
         }
         preRtrackpad = Rtrackpad;
@@ -418,13 +468,29 @@ public class VRSimulator : BaseSimulator
                 ToggleMarkerTransparency();
             }
         }
+        if (spaceInputVal != Vector2.zero && preLtrackpad == 0 && Ltrackpad == 1) // If there is input controlling the playback
+        {
+            //Debug.Log("1111111111111");
+            if (spaceInputVal.y < -LupSens)
+            {
+                //Debug.Log("222222222");
 
+                ToggleTransparency();
+            }
+        }
 
 
         if (spaceInputVal != Vector2.zero && Ltrackpad == 1) // If there is input controlling the playback //&& preLtrackpad == 0
         {
 
-
+            if(preLtrackpad == 0 && spaceInputVal.x > LrightSens)
+            {
+                nrMarkerSteps++;
+            }
+            if (preLtrackpad == 0 && spaceInputVal.x < LleftSens)
+            {
+                nrMarkerSteps++;
+            }
             if (spaceInputVal.x > LrightSens)
             {
                 

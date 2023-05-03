@@ -20,7 +20,7 @@ public class Simulator : BaseSimulator
 {
     private float currTime1;
     private float currTimeSpeedUp;
-    private float fastforwardspeed = 0.04f;
+    private float fastforwardspeed = 0.005f;
     private bool firstspeed = false;
     private float densityVisSpeed = 0.2f;
 
