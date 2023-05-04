@@ -22,7 +22,7 @@ public class Simulator : BaseSimulator
     private float currTimeSpeedUp;
     private float fastforwardspeed = 0.005f;
     private bool firstspeed = false;
-    private float densityVisSpeed = 0.2f;
+    //private float densityVisSpeed = 0.2f;
 
     override protected void checkVR()
     {
@@ -37,14 +37,18 @@ public class Simulator : BaseSimulator
             Debug.Log(index);
         }
 
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetKeyDown(KeyCode.Return) && !transparencyMarkerEnabled)
         {
+            
+
             float timeRes = Time.time-timeStart;
 
             string res = recordingIndex + "," + marker.transform.position.x + "," + marker.transform.position.y + "," + marker.transform.position.z + "," + marker.transform.localScale.x + ","+ timeRes + "," +nrMoveSteps+ "," +nrMarkerSteps + "," + nrTimeSteps;
+            string resINX = INXpickplaceMark + "," + INXplaypause + "," + INXrotateCam + "," + INXrotateMark + "," + INXspeedframe + "," + INXstepframe + "," + INXwindframe;
             using (StreamWriter writer = new StreamWriter("Result.txt",true))
             {
                 writer.WriteLine(res);
+                writer.WriteLine(resINX);
             }
             init();
         }
@@ -61,6 +65,7 @@ public class Simulator : BaseSimulator
         if (Input.GetKeyDown(KeyCode.Space))
         {
             nrTimeSteps++;
+            INXplaypause++;
             playPause();
         }
 
@@ -71,6 +76,7 @@ public class Simulator : BaseSimulator
         if (Input.GetKeyDown(KeyCode.RightArrow) && !applySpaceTimeDensity)
         {
             nrTimeSteps++;
+            INXspeedframe++;
             currTime1 = Time.time;
             firstspeed = false;
 
@@ -87,6 +93,7 @@ public class Simulator : BaseSimulator
         }
         if (Input.GetKey(KeyCode.RightArrow) && Time.time > currTime1 + 0.5 && index < maxFileSize-1)
         {
+            INXwindframe++;
             //first time entering GetKey function, reset currTimeSpeedUp timer
             if (!firstspeed)
             {
@@ -94,6 +101,7 @@ public class Simulator : BaseSimulator
 
                 if (index < maxFileSize - 1)
                 {
+                   
                     index++;
                 }
                 currTimeSpeedUp = Time.time;
@@ -102,6 +110,7 @@ public class Simulator : BaseSimulator
             {
                 if (index < maxFileSize - 1)
                 {
+                    
                     index++;
                 }
                 currTimeSpeedUp = Time.time; //reset the time to fast forward
@@ -115,6 +124,7 @@ public class Simulator : BaseSimulator
         if (Input.GetKeyDown(KeyCode.LeftArrow) && !applySpaceTimeDensity)
         {
             nrTimeSteps++;
+            INXspeedframe++;
             currTime1 = Time.time;
             firstspeed = false;
 
@@ -131,6 +141,7 @@ public class Simulator : BaseSimulator
         }
         if (Input.GetKey(KeyCode.LeftArrow) && Time.time > currTime1 + 0.5 && index > 0)
         {
+            INXwindframe++;
             //first time entering GetKey function, reset currTimeSpeedUp timer
             if (!firstspeed)
             {
@@ -167,6 +178,7 @@ public class Simulator : BaseSimulator
         if (Input.GetKeyDown(".") && !applySpaceTimeDensity)
         {
             nrTimeSteps++;
+            INXstepframe++;
             if (index < maxFileSize - 1)
             {
                 index++;
@@ -181,6 +193,7 @@ public class Simulator : BaseSimulator
         if (Input.GetKeyDown(",") && !applySpaceTimeDensity)
         {
             nrTimeSteps++;
+            INXstepframe++;
             if (index > 0)
             {
                 index--;

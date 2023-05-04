@@ -237,7 +237,7 @@ namespace UnityVolumeRendering
         // Reads whether system is in Direct or Cartesian
         public void ReadCoordinateSystemType()
         {
-            string molecule = null;
+            //string molecule = null;
             string compare = "Direct";
 
             var line = ParseLine();

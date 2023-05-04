@@ -139,6 +139,19 @@ public class BaseSimulator : MonoBehaviour
     public int nrMarkerSteps;
     public int nrTimeSteps;
 
+    public int INXpickplaceMark;
+    public int INXrotateMark;
+    public int INXrotateCam;
+    public int INXplaypause;
+    public int INXstepframe;
+    public int INXwindframe;
+    public int INXspeedframe;
+
+
+
+    public bool transparencyMarkerEnabled;
+
+
     // The reference markers instantiated for this data
     /*public GameObject cathTop;
     public GameObject cathTL;
@@ -318,7 +331,7 @@ public class BaseSimulator : MonoBehaviour
 
     protected void Update()
     {
-
+        //Debug.Log(nrTimeSteps);
         if (Input.GetKey(KeyCode.Escape))
         {
             Debug.Log("Quit");
@@ -342,16 +355,17 @@ public class BaseSimulator : MonoBehaviour
         }
         else
         {
-            Debug.Log(slider.value);
+            //Debug.Log(slider.value);
             index = Mathf.RoundToInt(slider.value);
             
         }
+        
         // Update the GUI
         if (FrameStuff[0])
         {
             FrameStuff[0].text = "Frame: " + index; // + " / " + maxFileSize;
         }
-
+        
         if (sliderSelecte)
         {
 
@@ -366,13 +380,13 @@ public class BaseSimulator : MonoBehaviour
     {
 
         paused = true;
-        Debug.Log("Selected");
+        //Debug.Log("Selected");
         sliderSelecte = true;
     }
 
     public void SliderDeselect()
     {
-        Debug.Log("Deselected");
+        // Debug.Log("Deselected");
         sliderSelecte = false;
     }
 

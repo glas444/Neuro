@@ -20,7 +20,7 @@ using UnityEngine.SceneManagement;
 
 public class VRSimulator : BaseSimulator
 {
-    private float densityVisSpeed = 0.2f;
+    //private float densityVisSpeed = 0.2f;
     public GameObject markerSphere;
 
     [Header("LEFT VR Settings")]
@@ -53,13 +53,13 @@ public class VRSimulator : BaseSimulator
     [Header("RIGHT VR Settings")]
     public Transform rightVRController;
     public GameObject rightController;
-    private bool transparencyMarkerEnabled;
+
 
     public float RleftSens = -0.7f;
     public float RrightSens = 0.7f;
     public float RupSens = 0.6f;
     public float RdownSens = -0.6f;
-    private float prePlayPauseBool = 0;
+    //private float prePlayPauseBool = 0;
     private float preRtrackpad = 0;
 
     private float currTime;
@@ -67,7 +67,7 @@ public class VRSimulator : BaseSimulator
     [SerializeField] private InputActionReference NextReturn = null;
     [SerializeField] private InputActionReference togglePlay = null;
     [SerializeField] private InputActionReference timeController = null;
-    [SerializeField] private InputActionReference annotatePoint = null;
+    //[SerializeField] private InputActionReference annotatePoint = null;
     [SerializeField] private InputActionReference RtrackClick = null;
     [SerializeField] private InputActionReference RtriggerZ = null;
 
@@ -75,28 +75,34 @@ public class VRSimulator : BaseSimulator
     public float LtriggerVal;
 
 
-    private bool transparencyToggleInProgress = false; // Todo: Is this actualy unused/superficient?
+    //private bool transparencyToggleInProgress = false; // Todo: Is this actualy unused/superficient?
 
-    private float triggerSens = 0.7f;
+    private float triggerSens = 1.0f;
     private bool leftHit = false;
     private bool rightHit = false;
     public GameObject rightHTC;
     public GameObject leftHTC;
     private bool RjustGrabbed;
     private bool LjustGrabbed;
-    private Vector3 scaleCubeRotation;
+    //private Vector3 scaleCubeRotation;
 
+    /*
     Vector3 initialHandPosition1; // first hand position
     Vector3 initialHandPosition2; // second hand position
     Quaternion initialObjectRotation; // grabbed object rotation
     Vector3 initialObjectScale; // grabbed object scale
     Vector3 initialObjectDirection; // direction of object to midpoint of both hands
-    Vector3 initialObjectDirectionRight;
+    Vector3 initialObjectDirectionRight;*/
     public bool twoHandGrab = false; // bool, so you know when grabbed with 2 hands
 
     private bool firstspeed = false;
     private float currTimeSpeedUp;
     private float fastforwardspeed = 0.005f;
+    private Vector3 rightStartPosGrab;
+    private Vector3 rightStartRightaxis;
+    private float frameDist = 0.001f;
+    private bool timeSwooper;
+    private int StartIndexTimeSwoop;
 
 
     public void setLeftHit()
@@ -131,105 +137,75 @@ public class VRSimulator : BaseSimulator
         float Ltrackpad = LtrackClick.action.ReadValue<float>();
         LtriggerVal = LtriggerZ.action.ReadValue<float>();
 
-        //Debug.Log("VRindex=  "+ index);
-        /*
-        if (rightHit == true && RtriggerVal >= triggerSens)
-        {
-            
-            Renderer rightCtrl = rightHTC.GetComponent<MeshRenderer>();
 
+        //Debug.Log("Right Grab");
+        //Debug.Log("RIGHT");
+        //Renderer leftCtrl = leftHTC.GetComponent<MeshRenderer>();
+        //ToggleMarkerTransparency();
+        //nrMarkerSteps++;
+        //scaleCubeDist = scaleSphere.transform.position - leftController.transform.position;
+        //scaleSphere.transform.position = leftController.transform.position + scaleCubeDist;
+        //leftCtrl.enabled = false;
+        //Renderer leftCtrl = rightHTC.GetComponent<MeshRenderer>();
+        //leftCtrl.enabled = true;
+
+
+        if (RtriggerVal >= triggerSens )
+        {
             if (RjustGrabbed)
             {
-                initialHandPosition1 = rightController.transform.position;
-                initialHandPosition2 = leftController.transform.position;
-                initialObjectRotation = scaleSphere.transform.rotation;
-                initialObjectScale =  scaleSphere.transform.localScale;
-                initialObjectDirection = scaleSphere.transform.position - (initialHandPosition1 + initialHandPosition2) * 0.5f;
-                initialObjectDirectionRight = scaleSphere.transform.position - initialHandPosition1;
-
-                //scaleCubeDist = scaleSphere.transform.position - rightController.transform.position;
-                //scaleCubeRotation = scaleSphere.transform.eulerAngles - rightController.transform.eulerAngles;
+                paused = true;
+                StartIndexTimeSwoop = index;
+                rightStartPosGrab = rightHTC.transform.position;
+                rightStartRightaxis = rightHTC.transform.right;
+                nrTimeSteps++;
+                //Debug.Log(index);
             }
-
             RjustGrabbed = false;
-
-
-
-            Vector3 currentHandPosition1 = rightController.transform.position; // current first hand position
-            Vector3 currentHandPosition2 = leftController.transform.position; // current second hand position
-
-            Vector3 handDir1 = (initialHandPosition1 - initialHandPosition2).normalized; // direction vector of initial first and second hand position
-            Vector3 handDir2 = (currentHandPosition1 - currentHandPosition2).normalized; // direction vector of current first and second hand position 
-
-            Quaternion handRot = Quaternion.FromToRotation(handDir1, handDir2); // calculate rotation based on those two direction vectors
-
-
-            float currentGrabDistance = Vector3.Distance(currentHandPosition1, currentHandPosition2);
-            float initialGrabDistance = Vector3.Distance(initialHandPosition1, initialHandPosition2);
-            float p = (currentGrabDistance / initialGrabDistance); // percentage based on the distance of the initial positions and the new positions
-
-
-            if (rightHit == true && RtriggerVal >= triggerSens && leftHit == true && LtriggerVal >= triggerSens)
+            Vector3 currRightHandPos = rightStartPosGrab-rightHTC.transform.position;
+            Vector3 ProjVecRight = Vector3.Project(currRightHandPos, rightStartRightaxis);
+            
+            float projDistRight = Vector3.Project(currRightHandPos, rightStartRightaxis).magnitude;
+            //Debug.Log(projDistRight);
+            int indexOffset = (int) (projDistRight / frameDist) * (int) Mathf.Round(Vector3.Dot(rightStartRightaxis, ProjVecRight.normalized)) ;
+            index = StartIndexTimeSwoop + indexOffset;
+            if (index < 0)
             {
-                Vector3 newScale = new Vector3(p * initialObjectScale.x, p * initialObjectScale.y, p * initialObjectScale.z); // calculate new object scale with p
-                scaleSphere.transform.localScale = newScale; // set new scale
-                scaleSphere.transform.rotation = handRot * initialObjectRotation; // add rotation
-                scaleSphere.transform.position = (0.5f * (currentHandPosition1 + currentHandPosition2)) + (handRot * (initialObjectDirection * p));
+                index = 0;
+                rightStartPosGrab = rightHTC.transform.position;
+                StartIndexTimeSwoop = index;
             }
-            else
+            if (index >= maxFileSize - 1)
             {
-                scaleSphere.transform.position = rightController.transform.position + initialObjectDirectionRight;
-                Quaternion rotDiff = Quaternion.Inverse(scaleSphere.transform.rotation) * rightController.transform.rotation;
-                scaleSphere.transform.rotation = scaleSphere.transform.rotation * rotDiff;
-                //scaleSphere.transform.rotation = rightController.transform.rotation * initialObjectRotation; // add rotation
-                //scaleSphere.transform.position = currentHandPosition1 + (rightController.transform.rotation * (initialObjectDirectionRight));
+                index = maxFileSize - 1;
+                rightStartPosGrab = rightHTC.transform.position;
+                StartIndexTimeSwoop = index;
             }
-
-
-
-            // set the position of the object to the center of both hands based on the original object direction relative to the new scale and rotation
-
-
-
-
-
-            //scaleSphere.transform.eulerAngles = scaleSphere.transform.eulerAngles + scaleCubeRotation;
-            //scaleSphere.transform.position = rightController.transform.position + scaleCubeDist;
-            rightCtrl.enabled = false;
+            visualiseData();
+            //rightStartPosGrab = leftHTC.transform.position;
         }
         else
         {
-            Renderer rightCtrl = rightHTC.GetComponent<MeshRenderer>();
-            rightCtrl.enabled = true;
             RjustGrabbed = true;
+            
 
-        }*/
+        }
 
-        if (LtriggerVal >= triggerSens )
+
+
+        if (LtriggerVal >= triggerSens)
         {
-
-            Debug.Log("Right Grab");
-            //Debug.Log("RIGHT");
-            //Renderer leftCtrl = leftHTC.GetComponent<MeshRenderer>();
-
             if (LjustGrabbed)
             {
                 ToggleMarkerTransparency();
-                nrMarkerSteps++;
-                //scaleCubeDist = scaleSphere.transform.position - leftController.transform.position;
-                Debug.Log("TOGGLETRANSPARANCY!");
+                INXpickplaceMark++;
             }
             LjustGrabbed = false;
-
-            //scaleSphere.transform.position = leftController.transform.position + scaleCubeDist;
-            //leftCtrl.enabled = false;
         }
-        
         else
         {
-            //Renderer leftCtrl = rightHTC.GetComponent<MeshRenderer>();
-            //leftCtrl.enabled = true;
             LjustGrabbed = true;
+
 
         }
 
@@ -238,9 +214,9 @@ public class VRSimulator : BaseSimulator
         {
             //Debug.Log("Right Grab");
             //Debug.Log("RIGHT");
-            
+
             Renderer rightCtrl = rightHTC.GetComponent<MeshRenderer>();
-            
+
             if (RjustGrabbed)
             {
                 scaleCubeDist = scaleSphere.transform.position - rightController.transform.position;
@@ -269,7 +245,7 @@ public class VRSimulator : BaseSimulator
         /*
         if (playPauseBool==1 && prePlayPauseBool==0)
         {
-            
+
             if (paused == true)
             {
                 paused = false;
@@ -278,7 +254,7 @@ public class VRSimulator : BaseSimulator
             {
                 paused = true;
             }
-            
+
         }
         prePlayPauseBool = playPauseBool;*/
 
@@ -288,7 +264,7 @@ public class VRSimulator : BaseSimulator
             ToggleTransparency();
         }
 
-
+        /*
         if (returnE > 0.8f && !transparencyMarkerEnabled) //If we got input to toggle transparency
         {
             float timeRes = Time.time - timeStart;
@@ -299,28 +275,40 @@ public class VRSimulator : BaseSimulator
                 writer.WriteLine(res);
             }
             init();
-        }
+        }*/
 
 
 
-        if (toggleVal > 0.8f && !transparencyToggleInProgress) //If we got input to toggle transparency
+        if (toggleVal > 0.8f && !transparencyMarkerEnabled) //If we got input to toggle transparency
         {
+            float timeRes = Time.time - timeStart;
+
+            string res = recordingIndex + "," + markerSphere.transform.position.x + "," + markerSphere.transform.position.y + "," + markerSphere.transform.position.z + "," + markerSphere.transform.localScale.x + "," + timeRes + "," + nrMoveSteps + "," + nrMarkerSteps + "," + nrTimeSteps;
+            string resINX = INXpickplaceMark + "," + INXplaypause + "," + INXrotateCam + "," + INXrotateMark + "," + INXspeedframe + "," + INXstepframe + "," + INXwindframe;
+            using (StreamWriter writer = new StreamWriter("ResultVR.txt", true))
+            {
+                writer.WriteLine(res);
+                writer.WriteLine(resINX);
+            }
+            init();
             //Debug.Log(toggleVal);
-            transparencyToggleInProgress = true;
+            //transparencyToggleInProgress = true;
 
             //ToggleTransparency(); // Toggle transparency instantly
         }
+        /*
         else if (toggleVal < 0.1f && transparencyToggleInProgress) // If we no longer have input to toggle transparency
         {
-            transparencyToggleInProgress = false;
+            //transparencyToggleInProgress = false;
         }
-
+        */
         ///////////////////////////////////////////////////////////////////////
 
         if (timeInputVal != Vector2.zero && Rtrackpad == 1 && preRtrackpad == 0 &&
             timeInputVal.y < RupSens && timeInputVal.y > RdownSens &&
             timeInputVal.x < RrightSens && timeInputVal.x > RleftSens)
         {
+            INXplaypause++;
             nrTimeSteps++;
             if (paused)
             {
@@ -339,6 +327,7 @@ public class VRSimulator : BaseSimulator
             if (timeInputVal.y > RupSens  && index < maxFileSize - 10) // If there is input to reduce the playback speed
             {
                 nrTimeSteps++;
+                INXstepframe++;
                 if (index < maxFileSize - 1)
                 {
                     index++;
@@ -348,6 +337,7 @@ public class VRSimulator : BaseSimulator
             else if (timeInputVal.y < RdownSens) // If there is input to reduce the playback speed
             {
                 nrTimeSteps++;
+                INXstepframe++;
                 if (index > 0)
                 {
                     index--;
@@ -363,6 +353,7 @@ public class VRSimulator : BaseSimulator
         if (timeInputVal != Vector2.zero && Rtrackpad == 1 && preRtrackpad == 0)
         {
             nrTimeSteps++;
+            INXspeedframe++;
             currTime = Time.time;
             firstspeed = false;
             if (index < maxFileSize - 1 && timeInputVal.x > RrightSens)
@@ -392,6 +383,7 @@ public class VRSimulator : BaseSimulator
 
             if (timeInputVal.x > RrightSens && Time.time > currTime + 0.5 && index < maxFileSize - 1) // If there is input to reduce the playback speed
             {
+                INXwindframe++;
                 if (!firstspeed)
                 {
                     firstspeed = true;
@@ -415,6 +407,7 @@ public class VRSimulator : BaseSimulator
 
             else if (timeInputVal.x < RleftSens && Time.time > currTime + 0.1 && index > 0) // If there is input to reduce the playback speed
             {
+                INXwindframe++;
                 //first time entering GetKey function, reset currTimeSpeedUp timer
                 if (!firstspeed)
                 {
@@ -464,7 +457,7 @@ public class VRSimulator : BaseSimulator
             if (spaceInputVal.y > LupSens)
             {
                 //Debug.Log("222222222");
-
+                INXpickplaceMark++;
                 ToggleMarkerTransparency();
             }
         }
@@ -701,3 +694,78 @@ public class VRSimulator : BaseSimulator
 
 
 }
+
+
+//Debug.Log("VRindex=  "+ index);
+/*
+if (rightHit == true && RtriggerVal >= triggerSens)
+{
+
+    Renderer rightCtrl = rightHTC.GetComponent<MeshRenderer>();
+
+    if (RjustGrabbed)
+    {
+        initialHandPosition1 = rightController.transform.position;
+        initialHandPosition2 = leftController.transform.position;
+        initialObjectRotation = scaleSphere.transform.rotation;
+        initialObjectScale =  scaleSphere.transform.localScale;
+        initialObjectDirection = scaleSphere.transform.position - (initialHandPosition1 + initialHandPosition2) * 0.5f;
+        initialObjectDirectionRight = scaleSphere.transform.position - initialHandPosition1;
+
+        //scaleCubeDist = scaleSphere.transform.position - rightController.transform.position;
+        //scaleCubeRotation = scaleSphere.transform.eulerAngles - rightController.transform.eulerAngles;
+    }
+
+    RjustGrabbed = false;
+
+
+
+    Vector3 currentHandPosition1 = rightController.transform.position; // current first hand position
+    Vector3 currentHandPosition2 = leftController.transform.position; // current second hand position
+
+    Vector3 handDir1 = (initialHandPosition1 - initialHandPosition2).normalized; // direction vector of initial first and second hand position
+    Vector3 handDir2 = (currentHandPosition1 - currentHandPosition2).normalized; // direction vector of current first and second hand position 
+
+    Quaternion handRot = Quaternion.FromToRotation(handDir1, handDir2); // calculate rotation based on those two direction vectors
+
+
+    float currentGrabDistance = Vector3.Distance(currentHandPosition1, currentHandPosition2);
+    float initialGrabDistance = Vector3.Distance(initialHandPosition1, initialHandPosition2);
+    float p = (currentGrabDistance / initialGrabDistance); // percentage based on the distance of the initial positions and the new positions
+
+
+    if (rightHit == true && RtriggerVal >= triggerSens && leftHit == true && LtriggerVal >= triggerSens)
+    {
+        Vector3 newScale = new Vector3(p * initialObjectScale.x, p * initialObjectScale.y, p * initialObjectScale.z); // calculate new object scale with p
+        scaleSphere.transform.localScale = newScale; // set new scale
+        scaleSphere.transform.rotation = handRot * initialObjectRotation; // add rotation
+        scaleSphere.transform.position = (0.5f * (currentHandPosition1 + currentHandPosition2)) + (handRot * (initialObjectDirection * p));
+    }
+    else
+    {
+        scaleSphere.transform.position = rightController.transform.position + initialObjectDirectionRight;
+        Quaternion rotDiff = Quaternion.Inverse(scaleSphere.transform.rotation) * rightController.transform.rotation;
+        scaleSphere.transform.rotation = scaleSphere.transform.rotation * rotDiff;
+        //scaleSphere.transform.rotation = rightController.transform.rotation * initialObjectRotation; // add rotation
+        //scaleSphere.transform.position = currentHandPosition1 + (rightController.transform.rotation * (initialObjectDirectionRight));
+    }
+
+
+
+    // set the position of the object to the center of both hands based on the original object direction relative to the new scale and rotation
+
+
+
+
+
+    //scaleSphere.transform.eulerAngles = scaleSphere.transform.eulerAngles + scaleCubeRotation;
+    //scaleSphere.transform.position = rightController.transform.position + scaleCubeDist;
+    rightCtrl.enabled = false;
+}
+else
+{
+    Renderer rightCtrl = rightHTC.GetComponent<MeshRenderer>();
+    rightCtrl.enabled = true;
+    RjustGrabbed = true;
+
+}*/

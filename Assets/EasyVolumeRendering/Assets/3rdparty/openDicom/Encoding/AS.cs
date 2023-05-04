@@ -57,6 +57,7 @@ namespace openDicom.Encoding
                         item = "000D";
                     age[i] = new Age(item);
                 }
+
                 catch (Exception e)
                 {
                     throw new EncodingException("Age string format is invalid.",

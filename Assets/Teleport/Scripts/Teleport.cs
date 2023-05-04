@@ -97,7 +97,7 @@ namespace Valve.VR.InteractionSystem
 		private Transform[] playAreaPreviewCorners;
 		private Transform[] playAreaPreviewSides;
 		*/	
-
+		/*
 		private float loopingAudioMaxVolume = 0.0f;
 
 		private Coroutine hintCoroutine = null;
@@ -107,7 +107,7 @@ namespace Valve.VR.InteractionSystem
 
 		private Vector3 startingFeetOffset = Vector3.zero;
 		private bool movedFeetFarEnough = false;
-
+		*/
 		public GameObject markerball;
 
 
@@ -146,7 +146,7 @@ namespace Valve.VR.InteractionSystem
 			teleportArc = GetComponent<TeleportArc>();
 			teleportArc.traceLayerMask = traceLayerMask;
 
-			loopingAudioMaxVolume = loopingAudioSource.volume;
+			//loopingAudioMaxVolume = loopingAudioSource.volume;
 
 			playAreaPreviewCorner.SetActive(false);
 			playAreaPreviewSide.SetActive(false);

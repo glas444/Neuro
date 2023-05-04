@@ -16,7 +16,7 @@ public class LookDirection : MonoBehaviour
     public Material solidMat;
     public bool leftRot;
 
-    protected bool transparencyEnabled;
+    //protected bool transparencyEnabled;
 
     public float xSens;
     public float ySens;
@@ -106,7 +106,7 @@ public class LookDirection : MonoBehaviour
             }
             if (Input.GetKey(KeyCode.Q))
             {
-                observerPosition.y += moveSpeed / 50;
+                observerPosition.y -= moveSpeed / 50;
             }
             if (Input.GetKeyDown(KeyCode.E))
             {
@@ -114,7 +114,7 @@ public class LookDirection : MonoBehaviour
             }
             if (Input.GetKey(KeyCode.E))
             {
-                observerPosition.y -= moveSpeed / 50;
+                observerPosition.y += moveSpeed / 50;
             }
         }
 
@@ -124,13 +124,14 @@ public class LookDirection : MonoBehaviour
         if (Input.GetMouseButtonDown(1) & Input.GetMouseButton(0) == false)
         {
             SliderFancy.nrMoveSteps++;
+
             //lookDir.rotation = this.transform.rotation;
             //lookDir.position = this.transform.position;
         }
         //RIGHTMOUSEBUTTON
         if (Input.GetMouseButton(1) & Input.GetMouseButton(0) == false)
         {
-            
+            SliderFancy.INXrotateCam++;
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             // mouse input
@@ -157,17 +158,18 @@ public class LookDirection : MonoBehaviour
         }
 
         
-        if (Input.GetMouseButtonDown(0) & transparencyEnabled == false & Input.GetMouseButton(1) == false && !SliderFancy.sliderSelecte)
+        if (Input.GetMouseButtonDown(0) & SliderFancy.transparencyMarkerEnabled == false & Input.GetMouseButton(1) == false && !SliderFancy.sliderSelecte)
         {
             SliderFancy.nrMoveSteps++;
+
             markerDist = this.transform.position - marker.transform.position;
             lookDir.transform.LookAt(marker.transform.position);
         }
 
         //LEFTMOUSEBUTTON
-        if (Input.GetMouseButton(0) & transparencyEnabled == false & Input.GetMouseButton(1) == false && !SliderFancy.sliderSelecte )// && marker.activeSelf == true)
+        if (Input.GetMouseButton(0) & SliderFancy.transparencyMarkerEnabled == false & Input.GetMouseButton(1) == false && !SliderFancy.sliderSelecte )// && marker.activeSelf == true)
         {
-
+            SliderFancy.INXrotateMark++;
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             lookDir.transform.position = marker.transform.position - (lookDir.transform.forward * markerDist.magnitude);
@@ -176,7 +178,7 @@ public class LookDirection : MonoBehaviour
 
             observerPosition = lookDir.transform.position;
         }
-        else if (Input.GetMouseButtonUp(0) & transparencyEnabled == false & Input.GetMouseButton(1) == false)
+        else if (Input.GetMouseButtonUp(0) & SliderFancy.transparencyMarkerEnabled == false & Input.GetMouseButton(1) == false)
         {
             xRot = lookDir.eulerAngles.x;
             yRot = lookDir.eulerAngles.y;
@@ -184,18 +186,19 @@ public class LookDirection : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
         }
 
-
+        
         if (Input.GetMouseButtonDown(2))
         {
             SliderFancy.nrMarkerSteps++;
+            SliderFancy.INXpickplaceMark++;
             if (marker.activeSelf == false)
             {
-                transparencyEnabled = false;
+                SliderFancy.transparencyMarkerEnabled = false;
             }
             ToggleTransparency();
         }
 
-        if (transparencyEnabled)
+        if (SliderFancy.transparencyMarkerEnabled)
         {
             marker.transform.position = this.transform.position + transform.rotation * markerDist;
         }
@@ -273,7 +276,7 @@ public class LookDirection : MonoBehaviour
     void ToggleTransparency()
     {
         Renderer markerRenderer = marker.GetComponent<Renderer>();
-        if (!transparencyEnabled)
+        if (!SliderFancy.transparencyMarkerEnabled)
         {
             //markerDist = this.transform.position - marker.transform.position;
             //marker.transform.position = this.transform.position + transform.rotation * markerDist;
@@ -281,12 +284,12 @@ public class LookDirection : MonoBehaviour
             //markerDist = new Vector3(-0.03f, -0.01f, markerDist.magnitude);
             markerDist = new Vector3(0, 0, markerDist.magnitude);
             markerTransparent();
-            transparencyEnabled = true;
+            SliderFancy.transparencyMarkerEnabled = true;
         }
-        else if (transparencyEnabled)
+        else if (SliderFancy.transparencyMarkerEnabled)
         {
             markerSolid();
-            transparencyEnabled = false;
+            SliderFancy.transparencyMarkerEnabled = false;
 
         }
     }
