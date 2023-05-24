@@ -27,6 +27,8 @@ public class Simulator : BaseSimulator
     override protected void checkVR()
     {
         isVR = false;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     override protected void handleInput()
@@ -37,14 +39,17 @@ public class Simulator : BaseSimulator
             Debug.Log(index);
         }
 
-        if (Input.GetKeyDown(KeyCode.Return) && !transparencyMarkerEnabled)
+
+
+
+        if (Input.GetKeyDown(KeyCode.Return) && !transparencyMarkerEnabled && paused)
         {
             
 
             float timeRes = Time.time-timeStart;
 
-            string res = recordingIndex + "," + marker.transform.position.x + "," + marker.transform.position.y + "," + marker.transform.position.z + "," + marker.transform.localScale.x + ","+ timeRes + "," +nrMoveSteps+ "," +nrMarkerSteps + "," + nrTimeSteps;
-            string resINX = INXpickplaceMark + "," + INXplaypause + "," + INXrotateCam + "," + INXrotateMark + "," + INXspeedframe + "," + INXstepframe + "," + INXwindframe;
+            string res = recordingIndex + "," + marker.transform.position.x + "," + marker.transform.position.y + "," + marker.transform.position.z + "," + marker.transform.localScale.x + ","+ timeRes + "," +nrMoveSteps+ "," +nrMarkerSteps + "," + nrTimeSteps + "," + index;
+            string resINX = recordingIndex + "," + INXpickplaceMark + "," + INXplaypause + "," + INXrotateCam + "," + INXrotateMark + "," + INXspeedframe + "," + INXstepframe + "," + INXwindframe + "," + INXsliderselected;
             using (StreamWriter writer = new StreamWriter("Result.txt",true))
             {
                 writer.WriteLine(res);

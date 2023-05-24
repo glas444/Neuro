@@ -30,10 +30,12 @@ public class LookDirection : MonoBehaviour
     public float slerpSmoothValue = 0.3f;
     //private bool startrot;
 
-    public Vector3 markerDist = new Vector3(0, 0, 0.5f);
+    public Vector3 markerDist;
     private bool scrolltoggle;
     public float markerSizeMin;
     public float markerSizeMax;
+
+    public float startScaleMarker;
     public GameObject cameraLineStart;
     public GameObject cameraLineEnd;
 
@@ -53,6 +55,7 @@ public class LookDirection : MonoBehaviour
         
         scrolltoggle = true;
         //startrot = true;
+        marker.transform.localScale = new Vector3(startScaleMarker, startScaleMarker, startScaleMarker);
         marker.transform.position = this.transform.position + transform.rotation * markerDist;
         ToggleTransparency();
         //Cursor.lockState = CursorLockMode.Locked;
@@ -120,6 +123,17 @@ public class LookDirection : MonoBehaviour
 
 
         lookDir.transform.position = observerPosition;
+
+
+        if (Input.GetKey(KeyCode.LeftControl))
+        {
+            moveSpeed = 0.07f;
+        }
+        else
+        {
+            moveSpeed = 0.01f;
+        }
+
 
         if (Input.GetMouseButtonDown(1) & Input.GetMouseButton(0) == false)
         {
@@ -223,7 +237,7 @@ public class LookDirection : MonoBehaviour
         }
         else
         {
-            marker.transform.localScale += Input.mouseScrollDelta.y * 0.002f * new Vector3(1, 1, 1);
+            marker.transform.localScale += Input.mouseScrollDelta.y * 0.001f * new Vector3(1, 1, 1);
 
             
             if (marker.transform.localScale.x < markerSizeMin)

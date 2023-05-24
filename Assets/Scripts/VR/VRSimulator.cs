@@ -48,6 +48,7 @@ public class VRSimulator : BaseSimulator
     [SerializeField] private InputActionReference toggleTransparent = null;
     [SerializeField] private InputActionReference LtrackClick = null;
     [SerializeField] private InputActionReference LtriggerZ = null;
+    [SerializeField] private InputActionReference TriggerEnter = null;
 
 
     [Header("RIGHT VR Settings")]
@@ -103,8 +104,12 @@ public class VRSimulator : BaseSimulator
     private float frameDist = 0.001f;
     private bool timeSwooper;
     private int StartIndexTimeSwoop;
+    public float triggerEnterbool;
+    private bool nextSceneOnce;
+    public GameObject place1;
 
-
+    public bool tooFarDist = false;
+    public GameObject tooFarWarning;
     public void setLeftHit()
     {
         leftHit = !leftHit;
@@ -129,6 +134,7 @@ public class VRSimulator : BaseSimulator
         float playPauseBool = togglePlay.action.ReadValue<float>();
         float Rtrackpad = RtrackClick.action.ReadValue<float>();
         RtriggerVal = RtriggerZ.action.ReadValue<float>();
+        triggerEnterbool = TriggerEnter.action.ReadValue<float>();
 
         // Handle VR input RIGHT
         Vector2 spaceInputVal = spaceController.action.ReadValue<Vector2>();
@@ -152,6 +158,7 @@ public class VRSimulator : BaseSimulator
 
         if (RtriggerVal >= triggerSens )
         {
+            INXsliderselected++;
             if (RjustGrabbed)
             {
                 paused = true;
@@ -192,10 +199,23 @@ public class VRSimulator : BaseSimulator
         }
 
 
-
-        if (LtriggerVal >= triggerSens)
+        if ((markerSphere.transform.position - leftController.transform.position).magnitude > 0.4f)
         {
-            if (LjustGrabbed)
+            tooFarDist = true;
+            tooFarWarning.SetActive(true);
+
+        }
+        else
+        {
+            tooFarDist = false;
+            tooFarWarning.SetActive(false);
+        }
+
+
+
+        if (triggerEnterbool == 1)
+        {
+            if (LjustGrabbed && tooFarDist == false)
             {
                 ToggleMarkerTransparency();
                 INXpickplaceMark++;
@@ -279,23 +299,28 @@ public class VRSimulator : BaseSimulator
 
 
 
-        if (toggleVal > 0.8f && !transparencyMarkerEnabled) //If we got input to toggle transparency
+        if (toggleVal > 0.8f && !transparencyMarkerEnabled && nextSceneOnce && paused) //If we got input to toggle transparency
         {
             float timeRes = Time.time - timeStart;
 
-            string res = recordingIndex + "," + markerSphere.transform.position.x + "," + markerSphere.transform.position.y + "," + markerSphere.transform.position.z + "," + markerSphere.transform.localScale.x + "," + timeRes + "," + nrMoveSteps + "," + nrMarkerSteps + "," + nrTimeSteps;
-            string resINX = INXpickplaceMark + "," + INXplaypause + "," + INXrotateCam + "," + INXrotateMark + "," + INXspeedframe + "," + INXstepframe + "," + INXwindframe;
+            string res = recordingIndex + "," + markerSphere.transform.position.x + "," + markerSphere.transform.position.y + "," + markerSphere.transform.position.z + "," + markerSphere.transform.localScale.x + "," + timeRes + "," + nrMoveSteps + "," + nrMarkerSteps + "," + nrTimeSteps + "," + index;
+            string resINX = recordingIndex + "," + INXpickplaceMark + "," + INXplaypause + "," + INXrotateCam + "," + INXrotateMark + "," + INXspeedframe + "," + INXstepframe + "," + INXwindframe + "," + INXsliderselected;
             using (StreamWriter writer = new StreamWriter("ResultVR.txt", true))
             {
                 writer.WriteLine(res);
                 writer.WriteLine(resINX);
             }
+            nextSceneOnce = false;
             init();
             //Debug.Log(toggleVal);
             //transparencyToggleInProgress = true;
 
             //ToggleTransparency(); // Toggle transparency instantly
         }
+        else {
+            nextSceneOnce = true;
+        }
+        
         /*
         else if (toggleVal < 0.1f && transparencyToggleInProgress) // If we no longer have input to toggle transparency
         {
@@ -353,11 +378,12 @@ public class VRSimulator : BaseSimulator
         if (timeInputVal != Vector2.zero && Rtrackpad == 1 && preRtrackpad == 0)
         {
             nrTimeSteps++;
-            INXspeedframe++;
+            
             currTime = Time.time;
             firstspeed = false;
             if (index < maxFileSize - 1 && timeInputVal.x > RrightSens)
             {
+                INXspeedframe++;
                 index += 5;
             }
             if (index >= maxFileSize - 1 && timeInputVal.x > RrightSens)
@@ -366,6 +392,7 @@ public class VRSimulator : BaseSimulator
             }
             if (index > 0 && timeInputVal.x < RleftSens)
             {
+                INXspeedframe++;
                 index -= 5;
             }
             if (index < 0 && timeInputVal.x < RleftSens)
@@ -442,16 +469,25 @@ public class VRSimulator : BaseSimulator
 
             markerSphere.SetActive(true);
             markerSphere.transform.position = leftController.transform.position + leftController.transform.rotation * new Vector3(0, 0, 0.05f);
+            
             transparencyMarkerEnabled = false;
             ToggleMarkerTransparency();
         }
         if (transparencyMarkerEnabled)
         {
-            
-            markerSphere.transform.position = leftController.transform.position + leftController.transform.rotation * markerDist;
+            //markerSphere.transform.SetParent(leftController.transform.parent);
+            markerSphere.transform.parent = leftController.transform;
+
+            //markerSphere.transform.position = leftController.transform.position + leftController.transform.rotation * markerDist;
+            //markerSphere.transform.position = leftController.transform.position + leftController.transform.rotation * markerDist;
         }
+        else
+        {
+            markerSphere.transform.parent = place1.transform;
+        }
+
         //Debug.Log(spaceInputVal);
-        if (spaceInputVal != Vector2.zero && preLtrackpad == 0 && Ltrackpad == 1) // If there is input controlling the playback
+        if (spaceInputVal != Vector2.zero && preLtrackpad == 0 && Ltrackpad == 1 && tooFarDist == false) // If there is input controlling the playback
         {
             //Debug.Log("1111111111111");
             if (spaceInputVal.y > LupSens)
@@ -461,17 +497,18 @@ public class VRSimulator : BaseSimulator
                 ToggleMarkerTransparency();
             }
         }
-        if (spaceInputVal != Vector2.zero && preLtrackpad == 0 && Ltrackpad == 1) // If there is input controlling the playback
+        
+        if (spaceInputVal != Vector2.zero && preLtrackpad == 0 && Ltrackpad == 1 && tooFarDist == false) // If there is input controlling the playback
         {
             //Debug.Log("1111111111111");
             if (spaceInputVal.y < -LupSens)
             {
                 //Debug.Log("222222222");
 
-                ToggleTransparency();
+                markerSphere.transform.position = leftController.transform.position + leftController.transform.rotation * markerDist;
             }
         }
-
+        
 
         if (spaceInputVal != Vector2.zero && Ltrackpad == 1) // If there is input controlling the playback //&& preLtrackpad == 0
         {
@@ -487,18 +524,18 @@ public class VRSimulator : BaseSimulator
             if (spaceInputVal.x > LrightSens)
             {
                 
-                markerSphere.transform.localScale += 0.0005f * new Vector3(1, 1, 1);
+                markerSphere.transform.localScale += 0.001f * new Vector3(1, 1, 1);
                 
             }
             else if (spaceInputVal.x < LleftSens)
             {
-                markerSphere.transform.localScale -= 0.0005f * new Vector3(1, 1, 1);
+                markerSphere.transform.localScale -= 0.001f * new Vector3(1, 1, 1);
             }
 
-            if (markerSphere.transform.localScale.x < 0.001f)
+            if (markerSphere.transform.localScale.x < markerSizeMin)
             {
 
-                markerSphere.transform.localScale = new Vector3(0.001f, 0.001f, 0.00f);
+                markerSphere.transform.localScale = new Vector3(markerSizeMin, markerSizeMin, markerSizeMin);
             }
             else if (markerSphere.transform.localScale.x > markerSizeMax)
             {

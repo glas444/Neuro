@@ -314,6 +314,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "TriggerEnter",
+                    "type": "Button",
+                    "id": "da3c3aa5-2f07-49a6-8a6b-877354537d70",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -457,6 +466,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Ltrigger",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7942a12b-e039-4a0f-b54a-9bef1335b87b",
+                    "path": "<ViveController>{LeftHand}/triggerPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TriggerEnter",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

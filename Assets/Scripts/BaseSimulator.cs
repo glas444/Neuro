@@ -68,6 +68,8 @@ public class BaseSimulator : MonoBehaviour
         public bool moreData;
     }
 
+    public TeleportArc guideLaser;
+
     [Header("Reference Markers Prefab")]
     public GameObject markers;
 
@@ -146,6 +148,7 @@ public class BaseSimulator : MonoBehaviour
     public int INXstepframe;
     public int INXwindframe;
     public int INXspeedframe;
+    public int INXsliderselected;
 
 
 
@@ -182,7 +185,11 @@ public class BaseSimulator : MonoBehaviour
         {"Assets/Recordings/catheter004.txt",new Vector3(-1.28999996f,-13.4799995f,6.07999992f) }, //file : cathether004 NOT WELL ALIGNED
         {"Assets/Recordings/catheter005.txt",new Vector3(-1.08000004f,-13.6199999f,6.5f) }, //file : cathether005
         {"Assets/Recordings/catheter006.txt",new Vector3(-0.639999986f,-12.6899996f,5.57000017f) }, //file : cathether006
-        {"Assets/Recordings/catheter007.txt",new Vector3(-0.850000024f,-14.1099997f,5.6500001f) } //file : cathether007
+        {"Assets/Recordings/catheter007.txt",new Vector3(-0.850000024f,-14.1099997f,5.6500001f) }, //file : cathether007
+
+        {"Assets/Recordings/catheter012.txt", new Vector3(-1.88f,-13.8599997f,4.67000008f) }, //file : cathether002 NOT WELL ALIGNED
+        {"Assets/Recordings/catheter014.txt",new Vector3(-1.28999996f,-13.4799995f,6.07999992f) }, //file : cathether004 NOT WELL ALIGNED
+        {"Assets/Recordings/catheter015.txt",new Vector3(-1.08000004f,-13.6199999f,6.5f) }, //file : cathether005
         };
     protected Dictionary<String, Vector3> skullOffsetRot = new Dictionary<String, Vector3> {
         {"Assets/Recordings/catheter001.txt",new Vector3(38.116478f,177.862823f,358.404968f)}, //file : cathether001
@@ -191,7 +198,12 @@ public class BaseSimulator : MonoBehaviour
         {"Assets/Recordings/catheter004.txt",new Vector3(42.3742065f,181.589996f,3.92515182f) }, //file : cathether004
         {"Assets/Recordings/catheter005.txt",new Vector3(42.3742065f,181.589996f,3.92515182f) }, //file : cathether005
         {"Assets/Recordings/catheter006.txt",new Vector3(42.3742104f,181.589996f,5.4209547f) }, //file : cathether006
-        {"Assets/Recordings/catheter007.txt",new Vector3(41.510006f,177.755005f,359.040009f) } //file : cathether007
+        {"Assets/Recordings/catheter007.txt",new Vector3(41.510006f,177.755005f,359.040009f) }, //file : cathether007
+
+        {"Assets/Recordings/catheter012.txt", new Vector3(42.3742065f,181.589996f,3.92515182f) }, //file : cathether002
+        {"Assets/Recordings/catheter014.txt",new Vector3(42.3742065f,181.589996f,3.92515182f) }, //file : cathether004
+        {"Assets/Recordings/catheter015.txt",new Vector3(42.3742065f,181.589996f,3.92515182f) }, //file : cathether005
+
         };
     protected Dictionary<String, Vector3> offsetPos = new Dictionary<String, Vector3> {
         {"Assets/Recordings/catheter001.txt", new Vector3(0.036f, 0.866f, -0.283f)}, 
@@ -200,7 +212,11 @@ public class BaseSimulator : MonoBehaviour
         {"Assets/Recordings/catheter004.txt", new Vector3(0.035f, 0.861f, -0.293f)},
         {"Assets/Recordings/catheter005.txt", new Vector3(0.030f, 0.860f, -0.294f)}, 
         {"Assets/Recordings/catheter006.txt", new Vector3(0.006f, 0.868f, -0.252f)},
-        {"Assets/Recordings/catheter007.txt", new Vector3(0.007f, 0.866f, -0.252f)} 
+        {"Assets/Recordings/catheter007.txt", new Vector3(0.007f, 0.866f, -0.252f)},
+
+        {"Assets/Recordings/catheter012.txt", new Vector3(0.034f, 0.864f, -0.283f)},
+        {"Assets/Recordings/catheter014.txt", new Vector3(0.035f, 0.861f, -0.293f)},
+        {"Assets/Recordings/catheter015.txt", new Vector3(0.030f, 0.860f, -0.294f)},
         };
 
     protected virtual void init()
@@ -222,6 +238,9 @@ public class BaseSimulator : MonoBehaviour
     void Start()
     {
         checkVR();
+
+
+
         timeStart = Time.time;
         nrMoveSteps = 0;
         nrMarkerSteps = 0;
@@ -245,10 +264,12 @@ public class BaseSimulator : MonoBehaviour
 
         readData();
         SetInitialColors();
+        ToggleTransparency();
 
         if (introS.activeSelf)
         {
             ourMarkers.SetActive(false);
+            
             paused = true;
             //HideBrain();
         }
@@ -264,9 +285,22 @@ public class BaseSimulator : MonoBehaviour
 
     protected void sceneLoader()
     {
-        introS.SetActive(false);
+        //introS.SetActive(false);
 
-        int currLev  = PlayerPrefs.GetInt("level");
+        int currLev = PlayerPrefs.GetInt("level");
+
+        if (currLev == 6)
+        {
+            recordingIndex = 5;
+        }
+        if (currLev == 5)
+        {
+            recordingIndex = 4;
+        }
+        if (currLev == 4)
+        {
+            recordingIndex = 3;
+        }
         if (currLev == 3)
         {
             recordingIndex = 2;
@@ -287,7 +321,7 @@ public class BaseSimulator : MonoBehaviour
             introS.SetActive(true);
         }
 
-        if (currLev == 3)
+        if (currLev == 6)
         {
             PlayerPrefs.SetInt("level", 0);
         }
@@ -296,6 +330,11 @@ public class BaseSimulator : MonoBehaviour
             currLev++;
             PlayerPrefs.SetInt("level", currLev);
         }
+        if (recordingIndex % 2 == 0)
+        {
+            guideLaser.Show();
+        }
+        Debug.Log(recordingIndex);
     }
 
     
@@ -357,6 +396,7 @@ public class BaseSimulator : MonoBehaviour
         {
             //Debug.Log(slider.value);
             index = Mathf.RoundToInt(slider.value);
+            INXsliderselected++;
             
         }
         
@@ -529,6 +569,8 @@ public class BaseSimulator : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+
+        //Debug.Log(INXpickplaceMark + "," + INXplaypause + "," + INXrotateCam + "," + INXrotateMark + "," + INXspeedframe + "," + INXstepframe + "," + INXwindframe + "," + INXsliderselected);
         timer += Time.deltaTime;
 
         // If it's the next simulation frame, and we are not paused
