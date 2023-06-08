@@ -29,6 +29,7 @@ public class Simulator : BaseSimulator
         isVR = false;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+        
     }
 
     override protected void handleInput()
@@ -37,6 +38,9 @@ public class Simulator : BaseSimulator
         if (Input.GetKeyDown("i"))
         {
             Debug.Log(index);
+            Screen.fullScreen = true;
+            UnityEditor.EditorWindow.focusedWindow.maximized = !UnityEditor.EditorWindow.focusedWindow.maximized;
+
         }
 
 
